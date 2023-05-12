@@ -12,7 +12,7 @@ import Layout from "./components/layout/Layout";
 import HomePage from "./pages/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LoginPage from "./pages/auth/Login";
-import UserNew from "./pages/User/UserNew";
+import UserNew from "./pages/user/UserNew";
 import UserList from "./pages/user/UserList";
 import UserUpdate from "./pages/user/UserUpdate";
 import Permission from "./pages/setting/permission/Permission";

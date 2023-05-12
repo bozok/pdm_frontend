@@ -8,7 +8,7 @@ import axios from "axios";
 import { useAuthContext } from "./hooks/auth/useAuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Layout from "./components/Layout/Layout";
+import Layout from "./components/layout/Layout";
 import HomePage from "./pages/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LoginPage from "./pages/auth/Login";

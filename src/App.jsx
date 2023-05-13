@@ -255,6 +255,7 @@ function App() {
             )
           }
         />
+        <Route path="*" element={<div>Error 404 Page not found</div>} />
       </Routes>
     </Router>
   );

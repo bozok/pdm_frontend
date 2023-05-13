@@ -55,13 +55,13 @@ function App() {
                 <HomePage />
               </Layout>
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace={true} />
             )
           }
         />
         <Route
           path="/login"
-          element={user ? <Navigate to="/" /> : <LoginPage />}
+          element={user ? <Navigate to="/" replace={true} /> : <LoginPage />}
         />
         <Route
           path="/dashboard"
@@ -71,7 +71,7 @@ function App() {
                 <Dashboard />
               </Layout>
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace={true} />
             )
           }
         />

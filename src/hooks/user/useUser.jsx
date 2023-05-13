@@ -56,7 +56,7 @@ export const useUser = () => {
       const response = await axios.get(`${BACKEND_URL}/api/user/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -77,7 +77,7 @@ export const useUser = () => {
       const response = await axios.get(`${BACKEND_URL}/api/user/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         //const json = await response.json();
         return response.data;
@@ -102,7 +102,7 @@ export const useUser = () => {
           withCredentials: true,
         }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         //const json = await response.json();
         return response.data.data;
@@ -127,7 +127,7 @@ export const useUser = () => {
           withCredentials: true,
         }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         //const json = await response.json();
         return response.data.data;
@@ -186,7 +186,7 @@ export const useUser = () => {
       const response = await axios.put(`${BACKEND_URL}/api/user/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success(response.data.message);
         return response.data.data;
@@ -208,7 +208,7 @@ export const useUser = () => {
         const response = await axios.post(`${BACKEND_URL}/api/user/new`, data, {
           withCredentials: true,
         });
-        if (response.statusText === "Created") {
+        if (response.status === 201) {
           toast.success(response.data.message);
           setIsLoading(false);
         }
@@ -230,7 +230,7 @@ export const useUser = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success(response.data.message);
           setIsLoading(false);
         }

@@ -18,7 +18,7 @@ export const useRole = () => {
       const response = await axios.get(`${BACKEND_URL}/api/role/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }

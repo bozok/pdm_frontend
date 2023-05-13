@@ -53,7 +53,7 @@ export const useOffice = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "Created") {
+        if (response.status === 201) {
           toast.success(response.data.message);
           setIsLoading(false);
         }
@@ -75,7 +75,7 @@ export const useOffice = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success(response.data.message);
           setIsLoading(false);
         }
@@ -97,7 +97,7 @@ export const useOffice = () => {
       const response = await axios.get(`${BACKEND_URL}/api/office/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -119,7 +119,7 @@ export const useOffice = () => {
       const response = await axios.get(`${BACKEND_URL}/api/office/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -143,7 +143,7 @@ export const useOffice = () => {
           withCredentials: true,
         }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -164,7 +164,7 @@ export const useOffice = () => {
       const response = await axios.put(`${BACKEND_URL}/api/office/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success(response.data.message);
         return response.data.data;

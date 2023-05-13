@@ -24,8 +24,7 @@ export const useLogin = () => {
         credentials,
         { withCredentials: true }
       );
-      alert(response.statusText);
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         dispatch({ type: "LOGIN", payload: response.data });
         localStorage.setItem("user", JSON.stringify(response.data));
         toast.success("Oturum açma başarılı");

@@ -18,7 +18,7 @@ export const useRegion = () => {
       const response = await axios.get(`${BACKEND_URL}/api/region/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }

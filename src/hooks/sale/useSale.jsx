@@ -49,7 +49,7 @@ export const useSale = () => {
       const response = await axios.get(`${BACKEND_URL}/api/sale/IG/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data[0];
       }
@@ -70,7 +70,7 @@ export const useSale = () => {
       const response = await axios.get(`${BACKEND_URL}/api/sale/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         //const json = await response.json();
         return response.data.data;
@@ -127,7 +127,7 @@ export const useSale = () => {
       const response = await axios.put(`${BACKEND_URL}/api/sale/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success("Satış durumu güncellendi");
         return true;
@@ -149,7 +149,7 @@ export const useSale = () => {
         const response = await axios.post(`${BACKEND_URL}/api/sale/new`, data, {
           withCredentials: true,
         });
-        if (response.statusText === "Created") {
+        if (response.status === 201) {
           toast.success(response.data.message);
           setIsLoading(false);
           navigate(`/sale/list`);
@@ -172,7 +172,7 @@ export const useSale = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success(response.data.message);
           setIsLoading(false);
         }
@@ -201,7 +201,7 @@ export const useSale = () => {
           withCredentials: true,
         }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success("Yeni proje notu eklendi.");
         return true;

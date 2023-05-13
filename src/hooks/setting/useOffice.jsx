@@ -20,7 +20,7 @@ export const useOffice = () => {
           withCredentials: true,
         }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }

@@ -52,7 +52,7 @@ export const useCustomer = () => {
       const response = await axios.get(`${BACKEND_URL}/api/customer/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -73,7 +73,7 @@ export const useCustomer = () => {
       const response = await axios.get(`${BACKEND_URL}/api/customer/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         //const json = await response.json();
         return response.data.data;
@@ -130,7 +130,7 @@ export const useCustomer = () => {
       const response = await axios.put(`${BACKEND_URL}/api/user/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success("Kullanıcı durumu güncellendi");
         return true;
@@ -156,7 +156,7 @@ export const useCustomer = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "Created") {
+        if (response.status === 200) {
           toast.success(response.data.message);
           setIsLoading(false);
         }
@@ -178,7 +178,7 @@ export const useCustomer = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success(response.data.message);
           setIsLoading(false);
         }

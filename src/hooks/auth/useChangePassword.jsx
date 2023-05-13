@@ -29,7 +29,7 @@ export const useChangePassword = () => {
         credentials,
         { withCredentials: true }
       );
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setError(null);
         toast.success(response.data.message);
         setIsLoading(false);

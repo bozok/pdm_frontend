@@ -49,7 +49,7 @@ export const useSaleType = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "Created") {
+        if (response.status === 201) {
           toast.success("Yeni satış türü kaydı başarılı");
           setIsLoading(false);
         }
@@ -71,7 +71,7 @@ export const useSaleType = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success("Satış türü bilgileri güncellendi");
           setIsLoading(false);
         }
@@ -93,7 +93,7 @@ export const useSaleType = () => {
       const response = await axios.get(`${BACKEND_URL}/api/saletype/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -115,7 +115,7 @@ export const useSaleType = () => {
       const response = await axios.get(`${BACKEND_URL}/api/saletype/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -136,7 +136,7 @@ export const useSaleType = () => {
       const response = await axios.put(`${BACKEND_URL}/api/saletype/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success("Satış türü durumu güncellendi");
         return true;

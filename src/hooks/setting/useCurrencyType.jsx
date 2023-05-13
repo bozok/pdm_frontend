@@ -53,7 +53,7 @@ export const useCurrencyType = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "Created") {
+        if (response.status === 201) {
           toast.success("Yeni para birimi türü kaydı başarılı");
           setIsLoading(false);
         }
@@ -75,7 +75,7 @@ export const useCurrencyType = () => {
             withCredentials: true,
           }
         );
-        if (response.statusText === "OK") {
+        if (response.status === 200) {
           toast.success("Satış para birimi türü bilgileri güncellendi");
           setIsLoading(false);
         }
@@ -97,7 +97,7 @@ export const useCurrencyType = () => {
       const response = await axios.get(`${BACKEND_URL}/api/currency/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -119,7 +119,7 @@ export const useCurrencyType = () => {
       const response = await axios.get(`${BACKEND_URL}/api/currency/list`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
       }
@@ -140,7 +140,7 @@ export const useCurrencyType = () => {
       const response = await axios.put(`${BACKEND_URL}/api/currency/${id}`, {
         withCredentials: true,
       });
-      if (response.statusText === "OK") {
+      if (response.status === 200) {
         setIsLoading(false);
         toast.success("Para birimi türü durumu güncellendi");
         return true;

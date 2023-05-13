@@ -25,6 +25,7 @@ export const useLogin = () => {
         { withCredentials: true }
       );
       if (response.statusText === "OK") {
+        console.log(response.data);
         dispatch({ type: "LOGIN", payload: response.data });
         localStorage.setItem("user", JSON.stringify(response.data));
         toast.success("Oturum açma başarılı");

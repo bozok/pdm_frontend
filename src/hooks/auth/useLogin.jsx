@@ -24,7 +24,7 @@ export const useLogin = () => {
         credentials,
         { withCredentials: true }
       );
-      console.log(response);
+      alert("ok");
       if (response.statusText === "OK") {
         dispatch({ type: "LOGIN", payload: response.data });
         localStorage.setItem("user", JSON.stringify(response.data));

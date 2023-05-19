@@ -51,7 +51,7 @@ export const useSale = () => {
       });
       if (response.status === 200) {
         setIsLoading(false);
-        return response.data.data[0];
+        return response.data.data;
       }
     } catch (error) {
       if (error.response.status === 401) {
@@ -216,6 +216,57 @@ export const useSale = () => {
     }
   };
 
+  const updateSaleDetailIG = async (
+    saleId,
+    detailId,
+    isEducationTaken,
+    educationTakenDate,
+    isWorkplaceOpen,
+    workplaceOpenDate,
+    isPartnered,
+    hasTraderRecord,
+    hasPttRecord,
+    declarationSent,
+    declarationApproved,
+    status
+  ) => {
+    const formData = {
+      detailId,
+      isEducationTaken,
+      educationTakenDate,
+      isWorkplaceOpen,
+      workplaceOpenDate,
+      isPartnered,
+      hasTraderRecord,
+      hasPttRecord,
+      declarationSent,
+      declarationApproved,
+      status,
+    };
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.patch(
+        `${BACKEND_URL}/api/sale/IG/${saleId}`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
   return {
     newSale,
     getSales,
@@ -223,6 +274,7 @@ export const useSale = () => {
     updateSale,
     changeSaleStatus,
     addNewNoteSaleIG,
+    updateSaleDetailIG,
     isLoading,
     error,
   };

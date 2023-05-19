@@ -1,13 +1,13 @@
-import { useState } from "react";
 import Header from "../layout/Header";
 import Sidebar from "../layout/Sidebar";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function Layout({ children }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [opened, { open, close }] = useDisclosure(false);
   return (
     <>
-      <Header setIsOpen={setIsOpen} isOpen={isOpen} />
-      <Sidebar setIsOpen={setIsOpen} isOpen={isOpen} />
+      <Header setIsOpen={open} isOpen={opened} />
+      <Sidebar setIsOpen={open} isOpen={opened} isClose={close} />
       <div className="p-4">{children}</div>
     </>
   );

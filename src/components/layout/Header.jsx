@@ -21,7 +21,7 @@ function Header({ setIsOpen, isOpen }) {
           strokeWidth={1.5}
           stroke="currentColor"
           className="mx-2 h-6 w-6 cursor-pointer text-white"
-          onClick={toggleSidebar}
+          onClick={setIsOpen}
         >
           <path
             strokeLinecap="round"

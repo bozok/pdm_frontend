@@ -92,6 +92,7 @@ export default function UserUpdate() {
       uploads.length == 0 ? photo : uploads[0]
     );
   };
+
   async function getEmployeeInfo() {
     const employeeInfo = await getUser(param.id);
     setPhoto(employeeInfo.photo);

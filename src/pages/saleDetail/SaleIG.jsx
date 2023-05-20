@@ -126,8 +126,7 @@ export default function SaleIG() {
       !declarationApproved ||
       !declarationSent ||
       !hasPttRecord ||
-      !hasTraderRecord ||
-      !isPartnered
+      !hasTraderRecord
     ) {
       val = "Eksik bilgi/belge var";
     }
@@ -136,6 +135,16 @@ export default function SaleIG() {
     }
     if (!isEducationTaken) {
       val = "Eğitim tamamlanacak";
+    }
+    if (
+      isEducationTaken &&
+      isWorkplaceOpen &&
+      hasTraderRecord &&
+      hasPttRecord &&
+      declarationSent &&
+      declarationApproved
+    ) {
+      val = "Proje Yazılacak";
     }
     return val;
   }
@@ -149,6 +158,34 @@ export default function SaleIG() {
     if (isWorkplaceOpen && workplaceOpenDate === null) {
       return toast.warning("İş yeri açılış tarihini giriniz");
     }
+    if (
+      isEducationTaken &&
+      educationTakenDate !== null &&
+      isWorkplaceOpen &&
+      workplaceOpenDate !== null &&
+      workplaceOpenDate <= educationTakenDate
+    ) {
+      return toast.warning(
+        "İş yeri açılış tarihi, eğitim tarihinden önce olduğu için İleri Girişimcilik Projesine başvurulamaz."
+      );
+    }
+    if (isPartnered) {
+      return toast.warning(
+        "Son üç yıl içinde açık işletmeniz bulunduğu için İleri Girişimcilik Projesine başvurulamaz."
+      );
+    }
+    // let checkDate = new Date();
+    // checkDate.setFullYear(checkDate.getFullYear() - 3);
+    // if (
+    //   isWorkplaceOpen &&
+    //   workplaceOpenDate !== null &&
+    //   workplaceOpenDate > checkDate
+    // ) {
+    //   return toast.warning(
+    //     "Son üç yıl içinde açık işletmeniz bulunduğu için İleri Girişimcilik Projesine başvurulamaz."
+    //   );
+    // }
+
     const newStatus = checkStatus();
     await updateSaleDetailIG(
       saleId,
@@ -213,7 +250,6 @@ export default function SaleIG() {
                 </svg>
               </Button>
             </Menu.Target>
-
             <Menu.Dropdown>
               <Menu.Label>Bilgi Güncelle</Menu.Label>
               <Menu.Item
@@ -232,7 +268,6 @@ export default function SaleIG() {
                 Atananı Değiştir
               </Menu.Item>
               <Menu.Item disabled>Tutarı Değiştir</Menu.Item>
-
               <Menu.Divider />
               <Menu.Item color="red">Süreci İptal Et</Menu.Item>
             </Menu.Dropdown>
@@ -252,24 +287,22 @@ export default function SaleIG() {
             Bilgi Kontrol
           </button>
           <button
-            className={`border-b-4 py-2 opacity-30 transition-colors duration-300 ${
+            className={`border-b-4 py-2 transition-colors duration-300 ${
               tabkeys[1] === activeTabIndex
                 ? "border-teal-500"
                 : "border-transparent hover:border-gray-200"
             }`}
             onClick={() => setActiveTabIndex(1)}
-            disabled
           >
             Proje Kontrol
           </button>
           <button
-            className={`border-b-4 py-2 opacity-30 transition-colors duration-300 ${
+            className={`border-b-4 py-2 transition-colors duration-300 ${
               tabkeys[2] === activeTabIndex
                 ? "border-teal-500"
                 : "border-transparent hover:border-gray-200"
             }`}
             onClick={() => setActiveTabIndex(2)}
-            disabled
           >
             Belge Kontrol
           </button>

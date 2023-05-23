@@ -21,6 +21,8 @@ export const useMenuItems = () => {
       if (response.status === 200) {
         setIsLoading(false);
         return response.data.data;
+      } else {
+        await logout();
       }
     } catch (error) {
       if (error.response.status === 401) {

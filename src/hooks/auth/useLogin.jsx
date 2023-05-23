@@ -26,7 +26,7 @@ export const useLogin = () => {
       );
       if (response.status === 200) {
         dispatch({ type: "LOGIN", payload: response.data });
-        localStorage.setItem("user", JSON.stringify(response.data));
+        sessionStorage.setItem("user", JSON.stringify(response.data));
         toast.success("Oturum açma başarılı");
         setIsLoading(false);
       }

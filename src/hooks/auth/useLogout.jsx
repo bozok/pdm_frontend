@@ -13,7 +13,7 @@ export const useLogout = () => {
         withCredentials: true,
       });
       // remove user from storage
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
       // dispatch logout action
       dispatch({ type: "LOGOUT" });
     } catch (error) {

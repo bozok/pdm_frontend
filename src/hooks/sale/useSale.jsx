@@ -228,6 +228,17 @@ export const useSale = () => {
     hasPttRecord,
     declarationSent,
     declarationApproved,
+    kosgebFormFiled,
+    machineInfoFilled,
+    projectFileReady,
+    isProjectUploaded,
+    kosgebStatus,
+    submittedDate,
+    revisionDate,
+    revisionReason,
+    denyDate,
+    denyReason,
+    denyCounter,
     status
   ) => {
     const formData = {
@@ -241,6 +252,17 @@ export const useSale = () => {
       hasPttRecord,
       declarationSent,
       declarationApproved,
+      kosgebFormFiled,
+      machineInfoFilled,
+      projectFileReady,
+      isProjectUploaded,
+      kosgebStatus,
+      submittedDate,
+      revisionDate,
+      revisionReason,
+      denyDate,
+      denyReason,
+      denyCounter,
       status,
     };
     setIsLoading(true);
@@ -267,6 +289,126 @@ export const useSale = () => {
     }
   };
 
+  const uploadFileIG = async (id, document) => {
+    setIsLoading(true);
+    setError(null);
+    const data = new FormData();
+    data.append("detailId", id);
+    for (let i = 0; i < document.length; i++) {
+      data.append("document", document[i]);
+    }
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/sale/IG/${id}`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        return true;
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
+  const deleteFileIG = async (detailId, docId, docKey) => {
+    setIsLoading(true);
+    setError(null);
+    const formData = {
+      docId: docId,
+      docKey: docKey,
+    };
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/sale/IG/documentDelete/${detailId}`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        return true;
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
+  const getFileIG = async (detailId, docId, docKey) => {
+    setIsLoading(true);
+    setError(null);
+    const formData = {
+      docId: docId,
+      docKey: docKey,
+    };
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/sale/IG/documentGet/${detailId}`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        return response.data.fileUrl;
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
+  const changeAssignee = async (saleId, newAssignee) => {
+    setIsLoading(true);
+    setError(null);
+    const formData = {
+      newAssigneeId: newAssignee,
+    };
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/sale/IG/assigneeChange/${saleId}`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status === 200) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        return response.data.data;
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
   return {
     newSale,
     getSales,
@@ -275,6 +417,10 @@ export const useSale = () => {
     changeSaleStatus,
     addNewNoteSaleIG,
     updateSaleDetailIG,
+    uploadFileIG,
+    deleteFileIG,
+    getFileIG,
+    changeAssignee,
     isLoading,
     error,
   };

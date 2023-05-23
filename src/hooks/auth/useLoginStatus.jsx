@@ -22,14 +22,14 @@ export const useLoginStatus = () => {
       if (response.data.status) {
         dispatch({ type: "LOGIN", payload: response.data });
       } else {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
         dispatch({ type: "LOGOUT", payload: null });
       }
       return response.data.status;
     } catch (error) {
       setError(error.response.data.message);
       //toast.error(error.response.data.message);
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
       dispatch({ type: "LOGOUT", payload: null });
       setIsLoading(false);
     }

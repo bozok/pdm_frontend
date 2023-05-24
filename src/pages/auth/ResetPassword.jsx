@@ -17,7 +17,6 @@ export default function ResetPassword() {
       return toast.error("Yeni şifrenizi belirlemediniz.");
     }
     if (passwordNew1.current.value != passwordNew2.current.value) {
-      setError("Yeni şifreleriniz aynı değil");
       return toast.error("Yeni şifreleriniz aynı değil");
     }
     await resetPassword(

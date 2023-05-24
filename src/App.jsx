@@ -13,6 +13,8 @@ import Layout from "./components/layout/Layout";
 import HomePage from "./pages/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LoginPage from "./pages/auth/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import UserNew from "./pages/user/UserNew";
 import UserList from "./pages/user/UserList";
 import UserUpdate from "./pages/user/UserUpdate";
@@ -268,7 +270,12 @@ function App() {
             )
           }
         />
-        <Route path="*" element={<div>Error 404 Page not found</div>} />
+        <Route
+          path="/forgotpassword"
+          element={user ? <Navigate to="/" /> : <ForgotPassword />}
+        />
+        <Route path="/resetpassword/:resetToken" element={<ResetPassword />} />
+        {/* <Route path="*" element={<div>Error 404 Page not found</div>} /> */}
       </Routes>
     </Router>
   );

@@ -94,8 +94,10 @@ export default function CustomerNew() {
         onSubmit={handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Firma Sahibi Bilgileri</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Firma Sahibi Bilgileri
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 TC Kimlik Numarası
@@ -161,8 +163,10 @@ export default function CustomerNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Firma Bilgileri</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Firma Bilgileri
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Vergi Kimlik Numarası
@@ -248,8 +252,10 @@ export default function CustomerNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">İletişim Bilgileri</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              İletişim Bilgileri
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 E-posta

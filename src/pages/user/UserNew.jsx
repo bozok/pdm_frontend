@@ -119,15 +119,17 @@ export default function UserNew() {
         onSubmit={handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Profil Resmi</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Profil Resmi
+            </div>
             <div className="m-2">
               <img
                 src={photo}
                 alt=""
                 className="m-auto h-56 w-56 rounded-md border-2 object-cover"
               />
-              <label className="mt-2 flex cursor-pointer justify-center font-roboto font-bold text-blue-500">
+              <label className="mt-2 flex cursor-pointer justify-center font-roboto font-bold text-orange-400">
                 <input
                   type={"file"}
                   accept=".jpg, .png, .jpeg, .gif"
@@ -140,8 +142,10 @@ export default function UserNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Genel Bilgiler</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Genel Bilgiler
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 TC Kimlik Numarası
@@ -155,7 +159,7 @@ export default function UserNew() {
                   maxLength={11}
                   pattern="[0-9]+"
                   onChange={(e) => setIdentityNo(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
                 />
               </div>
             </div>
@@ -234,8 +238,10 @@ export default function UserNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Erişim Bilgileri</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Erişim Bilgileri
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 E-posta

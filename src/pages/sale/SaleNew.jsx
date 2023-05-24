@@ -154,8 +154,10 @@ export default function SaleNew() {
         onSubmit={handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200 pb-4">
-            <div className="mb-4 bg-gray-200 p-2">Müşteri Bilgileri</div>
+          <div className="rounded-md border border-orange-200 pb-4">
+            <div className="mb-4 rounded-md bg-orange-100 p-2">
+              Müşteri Bilgileri
+            </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">Müşteri Adı: </span>
               <span className="text-sm">
@@ -185,8 +187,8 @@ export default function SaleNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-4 bg-gray-200 p-2">
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-4 rounded-md bg-orange-100 p-2">
               Satışı yapılacak iş & Tutar{" "}
               <span className="text-lg font-bold text-green-500">
                 ({total} {currencyType})
@@ -252,8 +254,8 @@ export default function SaleNew() {
             </div>
           </div>
 
-          <div className="mt-4 rounded-md border border-gray-200">
-            <div className="mb-4 bg-gray-200 p-2">Proje Notu</div>
+          <div className="mt-4 rounded-md border border-orange-200">
+            <div className="mb-4 rounded-md bg-orange-100 p-2">Proje Notu</div>
             <div className="m-2">
               <textarea
                 type="text"
@@ -266,8 +268,10 @@ export default function SaleNew() {
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-4 bg-gray-200 p-2">Atanacak çalışan</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-4 rounded-md bg-orange-100 p-2">
+              Atanacak çalışan
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Bölge

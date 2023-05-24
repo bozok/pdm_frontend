@@ -1,21 +1,17 @@
 import { useRef } from "react";
-import { useLogin } from "../../hooks/auth/useLogin";
+import { useForgotPassword } from "../../hooks/auth/useForgotPassword";
 import Loader from "../../components/loader/Loader";
 
-export default function LoginPage() {
-  const password = useRef();
+export default function ForgotPassword() {
   const email = useRef();
-  const { login, isLoading } = useLogin();
+  const { forgotPassword, isLoading } = useForgotPassword();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      return toast.error("All fields required");
+    if (!email) {
+      return toast.error("E-posta adresinizi yazmadınız");
     }
-    if (password.length < 6) {
-      return toast.error("Password must be min. 6 characters");
-    }
-    await login(email.current.value, password.current.value);
+    await forgotPassword(email.current.value);
   };
   return (
     <div className="selection:bg-orange-500 selection:text-white">
@@ -37,8 +33,9 @@ export default function LoginPage() {
               </svg>
             </div>
             <div className="rounded-tr-4xl bg-white px-10 pb-8 pt-4">
-              <h1 className="text-2xl font-semibold text-gray-500">
-                Hoş geldiniz!
+              <h1 className="text-md font-semibold text-gray-500">
+                Şifre sıfırlama erknanındasınız. Lütfen e-posta adresinizi
+                yazınız.
               </h1>
               <form className="mt-12" onSubmit={handleSubmit}>
                 <div className="relative">
@@ -57,25 +54,6 @@ export default function LoginPage() {
                     className="absolute -top-3.5 left-0 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600"
                   >
                     E-posta adresiniz
-                  </label>
-                </div>
-                <div className="relative mt-10">
-                  <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    className="peer h-10 w-full border-b-2 border-gray-300 text-gray-900 placeholder-transparent focus:border-orange-600 focus:outline-none"
-                    placeholder="Şifreniz"
-                    autoComplete="false"
-                    minLength={8}
-                    required
-                    ref={password}
-                  />
-                  <label
-                    htmlFor="password"
-                    className="absolute -top-3.5 left-0 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600"
-                  >
-                    Şifreniz
                   </label>
                 </div>
 
@@ -97,15 +75,15 @@ export default function LoginPage() {
                       d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
                     />
                   </svg>
-                  Oturum Aç
+                  Şifremi Sıfırla
                 </button>
               </form>
               <a
-                href="/forgotpassword"
+                href="/login"
                 className="mt-4 block text-center text-sm font-medium text-orange-600 hover:underline focus:outline-none focus:ring-2 focus:ring-rose-500"
               >
                 {" "}
-                Şifrenizi mi unuttunuz?{" "}
+                Giriş sayfasına dön{" "}
               </a>
             </div>
           </div>

@@ -454,7 +454,7 @@ export default function SaleIG() {
         {/* Tabs */}
         <div className="col-span-1 grid gap-3 md:col-span-3">
           <form onSubmit={handleSubmit} disabled>
-            <Tabs color="blue" defaultValue={checkActiveTab()}>
+            <Tabs color="orange" defaultValue={checkActiveTab()}>
               <Tabs.List className=" flex">
                 <Tabs.Tab value="first">Bilgi Kontrol</Tabs.Tab>
                 <Tabs.Tab value="second">Proje Kontrol</Tabs.Tab>
@@ -1010,8 +1010,10 @@ export default function SaleIG() {
         </div>
         {/* History & Notes & Documents & Customer Info & Process Info */}
         <div className="col-span-1 md:col-span-1">
-          <div className="rounded-md border border-gray-200 pb-4">
-            <div className="mb-4 bg-gray-200 p-2">Proje Geçmişi</div>
+          <div className="rounded-md border border-orange-200 pb-4">
+            <div className="mb-4 rounded-md bg-orange-100 p-2">
+              Proje Geçmişi
+            </div>
             <div className="ml-2 max-h-[490px] overflow-y-auto">
               <Accordion defaultValue="history">
                 <SaleIgProjectTagHistory history={history} />

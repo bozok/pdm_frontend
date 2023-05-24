@@ -36,8 +36,10 @@ export default function ChangePassword() {
         onSubmit={handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
-          <div className="rounded-md border border-gray-200">
-            <div className="mb-6 bg-gray-200 p-2">Şifre Bilgileri</div>
+          <div className="rounded-md border border-orange-200">
+            <div className="mb-6 rounded-md bg-orange-100 p-2">
+              Şifre Bilgileri
+            </div>
             <div className="m-2">
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Mevcut Şifre

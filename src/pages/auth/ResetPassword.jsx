@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useResetPassword } from "../../hooks/auth/useResetPassword";
 import Loader from "../../components/loader/Loader";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function ResetPassword() {
   const { resetToken } = useParams();
@@ -12,14 +13,19 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await resetPassword(
+    if (!passwordNew1.current.value || !passwordNew2.current.value) {
+      return toast.error("Yeni şifrenizi belirlemediniz.");
+    }
+    if (passwordNew1.current.value != passwordNew2.current.value) {
+      setError("Yeni şifreleriniz aynı değil");
+      return toast.error("Yeni şifreleriniz aynı değil");
+    }
+    await resetPassword(
       passwordNew1.current.value,
       passwordNew2.current.value,
       resetToken
     );
-    if (response) {
-      navigate("/login");
-    }
+    navigate("/login");
   };
   return (
     <div className="selection:bg-orange-500 selection:text-white">

@@ -277,6 +277,9 @@ export default function SaleIG() {
     if (kosgebStatus == "Revize isteniyor" && revisionDate == null) {
       return toast.warning("Son revize tarihini giriniz.");
     }
+    if (kosgebStatus == "Ret" && denyDate == null) {
+      return toast.warning("Son itiraz tarihini giriniz.");
+    }
     const newStatus = checkStatus();
     if (denyCounter < 2) {
       let tmpDenyCounter = denyCounter;
@@ -880,6 +883,7 @@ export default function SaleIG() {
                             value={submittedDate}
                             onChange={setSubmittedDate}
                             clearable
+                            required
                             minDate={new Date()}
                             valueFormat="DD.MM.YYYY HH:mm"
                           />
@@ -902,6 +906,7 @@ export default function SaleIG() {
                             value={revisionDate}
                             onChange={setRevisionDate}
                             clearable
+                            required
                             minDate={new Date()}
                             valueFormat="DD.MM.YYYY"
                           />
@@ -936,6 +941,7 @@ export default function SaleIG() {
                             value={denyDate}
                             onChange={setDenyDate}
                             clearable
+                            required
                             minDate={new Date()}
                             valueFormat="DD.MM.YYYY"
                           />

@@ -6,7 +6,7 @@ export default function Layout({ children }) {
   const [opened, { open, close }] = useDisclosure(false);
   return (
     <>
-      <Header setIsOpen={open} isOpen={opened} />
+      <Header setIsOpen={open} />
       <Sidebar setIsOpen={open} isOpen={opened} isClose={close} />
       <div className="p-4">{children}</div>
     </>

@@ -28,7 +28,7 @@ const Table = ({ data, rowsPerPage }) => {
             <th className={headerClass}>Müşteri Adı</th>
             <th className={headerClass}>Firma Adı</th>
             <th className={headerClass}>Proje Tutarı</th>
-            <th className={headerClass}>Bağlı Ofİs</th>
+            <th className={headerClass}>Bağlı Ofis</th>
             <th className={headerClass}>Kayıt Tarİhİ</th>
             <th className={headerClass}>Durum</th>
             <th className={headerClass}>Detaylar</th>

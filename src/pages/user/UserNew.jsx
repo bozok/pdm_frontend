@@ -15,16 +15,33 @@ export default function UserNew() {
   const [uploads, setUploads] = useState([]);
   const [photo, setPhoto] = useState(import.meta.env.VITE_DEFAULT_PROFILE_IMG);
   const [identityNo, setIdentityNo] = useState("");
+  const [identityError, setIdentiyError] = useState("");
   const [firstName, setFirstName] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
   const [lastName, setLastName] = useState("");
+  const [lastNameError, setLastNameError] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState();
+  const [regionError, setRegionError] = useState();
   const [offices, setOffices] = useState([]);
   const [office, setOffice] = useState("");
+  const [officeError, setOfficeError] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  const [mobileNumberError, setMobileNumberError] = useState("");
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState("");
+  const [roleError, setRoleError] = useState("");
+
+  const isEmptyOrSpaces = (str) => {
+    return str === null || str.match(/^ *$/) !== null;
+  };
+  const validateEmail = (email) => {
+    return email.match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+  };
 
   function addPhoto(e) {
     e.preventDefault();
@@ -43,12 +60,12 @@ export default function UserNew() {
     async function regionListGet() {
       const regionList = await getRegions();
       setRegions(regionList);
-      setRegion("Akdeniz");
+      setRegion("Seçiniz");
     }
     async function roleListGet() {
       const roleList = await getRoles();
       setRoles(roleList);
-      setRole("Admin");
+      setRole("Seçiniz");
     }
     regionListGet();
     roleListGet();
@@ -58,38 +75,83 @@ export default function UserNew() {
     async function officeListGet() {
       const officeList = await getOfficesByRegion(region);
       setOffices(officeList);
-      setOffice("Antalya-1");
+      setOffice("Seçiniz");
     }
     officeListGet();
   }, [region]);
 
+  function checkErrors() {
+    clearErrors();
+    let error = false;
+    if (
+      isEmptyOrSpaces(identityNo) ||
+      identityNo.length < 11 ||
+      identityNo.length > 11
+    ) {
+      setIdentiyError("Geçersiz TC Kimlik numarası");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(firstName) ||
+      firstName.length < 3 ||
+      firstName.length > 20
+    ) {
+      setFirstNameError("Geçersiz isim bilgisi");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(lastName) ||
+      lastName.length < 2 ||
+      lastName.length > 20
+    ) {
+      setLastNameError("Geçersiz soyisim bilgisi");
+      error = true;
+    }
+    if (!validateEmail(email)) {
+      setEmailError("Geçersiz e-posta bilgisi");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(mobileNumber) ||
+      mobileNumber.length < 10 ||
+      mobileNumber.length > 10
+    ) {
+      setMobileNumberError("Geçersiz telefon bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(role) || role == "Seçiniz") {
+      setRoleError("Geçersiz rol bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(region) || region == "Seçiniz") {
+      setRegionError("Geçersiz bölge bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(office) || office == "Seçiniz") {
+      setOfficeError("Geçersiz ofis bilgisi");
+      error = true;
+    }
+    return error;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !identityNo ||
-      !firstName ||
-      !lastName ||
-      !email ||
-      !region ||
-      !office ||
-      !mobileNumber ||
-      !role
-    ) {
-      return toast.warn("Tüm alanları doldurun");
-    }
-    const status = await newUser(
-      identityNo,
-      firstName,
-      lastName,
-      email,
-      region,
-      office,
-      mobileNumber,
-      role,
-      uploads.length == 0 ? photo : uploads[0]
-    );
-    if (status) {
-      clearForm();
+    let errorStatus = checkErrors();
+    if (!errorStatus) {
+      const status = await newUser(
+        identityNo,
+        firstName,
+        lastName,
+        email,
+        region,
+        office,
+        mobileNumber,
+        role,
+        uploads.length == 0 ? photo : uploads[0]
+      );
+      if (status) {
+        clearForm();
+      }
     }
   };
 
@@ -99,12 +161,23 @@ export default function UserNew() {
     setFirstName("");
     setLastName("");
     setEmail("");
-    setRegion("Akdeniz");
-    setOffice("Antalya-1");
     setMobileNumber("");
-    setRole("Admin");
+    setRegion("Seçiniz");
+    setOffice("Seçiniz");
+    setRole("Seçiniz");
     setUploads([]);
   };
+
+  function clearErrors() {
+    setIdentiyError("");
+    setFirstNameError("");
+    setLastNameError("");
+    setEmailError("");
+    setMobileNumberError("");
+    setRoleError("");
+    setRegionError("");
+    setOfficeError("");
+  }
 
   return (
     <>
@@ -150,16 +223,19 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 TC Kimlik Numarası
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {identityError}
+              </span>
               <div className="mt-1">
                 <input
                   value={identityNo}
                   type="text"
-                  required
-                  minLength={11}
-                  maxLength={11}
-                  pattern="[0-9]+"
                   onChange={(e) => setIdentityNo(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  className={`${
+                    identityError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -167,14 +243,19 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 İsim
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {firstNameError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={firstName}
-                  required
-                  minLength={3}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    firstNameError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -182,14 +263,19 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Soyisim
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {lastNameError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={lastName}
-                  required
-                  minLength={2}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    lastNameError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -197,13 +283,18 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Bölge
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {regionError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
+                  <option>Seçiniz</option>
                   {regions.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -218,13 +309,18 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Ofis
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {officeError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={office}
                   onChange={(e) => setOffice(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
+                  <option>Seçiniz</option>
                   {offices.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -246,13 +342,19 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 E-posta
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {emailError}
+              </span>
               <div className="mt-1">
                 <input
-                  type="email"
+                  type="text"
                   value={email}
-                  required
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    emailError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -260,17 +362,20 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Cep Telefonu
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {mobileNumberError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={mobileNumber}
-                  required
                   placeholder="5XX XXX XX XX"
-                  minLength={10}
-                  maxLength={10}
-                  pattern="[0-9]+"
                   onChange={(e) => setMobileNumber(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    mobileNumberError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -278,13 +383,18 @@ export default function UserNew() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Rol
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {roleError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    roleError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
+                  <option>Seçiniz</option>
                   {roles.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>

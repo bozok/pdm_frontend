@@ -26,7 +26,7 @@ const SaleIgProjectTagDocuments = ({
           </svg>
         }
       >
-        Belgeler
+        Belgeler <span className="text-blue-400">({documents.length})</span>
       </Accordion.Control>
       <Accordion.Panel>
         {documents.map((item, index) => {

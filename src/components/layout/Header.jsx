@@ -1,13 +1,12 @@
 import { useLogout } from "../../hooks/auth/useLogout";
 import { useAuthContext } from "../../hooks/auth/useAuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu } from "@mantine/core";
 
-function Header({ setIsOpen, isOpen }) {
+function Header({ setIsOpen }) {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const { logout } = useLogout();
-  function toggleSidebar() {
-    setIsOpen(!isOpen);
-  }
   const handleLogout = async () => {
     await logout();
   };
@@ -33,35 +32,32 @@ function Header({ setIsOpen, isOpen }) {
           <span className="font-roboto text-white">Proje Danışma Merkezi</span>
         </Link>
       </div>
-      <div className="flex">
-        <div className="flex-col">
-          <div className="text-center  text-sm text-gray-100">{`${user.firstName} ${user.lastName}`}</div>
-          <button
-            className="mx-4 flex items-center justify-center rounded-md bg-orange-400 px-2 font-roboto text-white shadow-sm"
-            onClick={handleLogout}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="mr-1 h-5 w-5"
+      <div className="flex items-center justify-center">
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <img
+              src={user.photo}
+              alt="profile image"
+              className="mr-4 h-12 w-12 cursor-pointer rounded-full border-2 object-cover"
+            />
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>{`${user.firstName} ${user.lastName}`}</Menu.Label>
+            <Menu.Divider />
+            <Menu.Item
+              onClick={(e) => navigate(`/authentication/changepassword`)}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
-              />
-            </svg>
-            Çıkış Yap
-          </button>
-        </div>
-        <img
-          src={user.photo}
-          alt="profile image"
-          className="mr-4 h-12 w-12 cursor-pointer rounded-full border-2 object-cover"
-        />
+              Şifre Değiştir
+            </Menu.Item>
+            <Menu.Item
+              color="red"
+              onClick={handleLogout}
+              className="font-semibold"
+            >
+              Çıkış Yap
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
     </div>
   );

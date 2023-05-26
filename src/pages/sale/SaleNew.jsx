@@ -114,10 +114,10 @@ export default function SaleNew() {
     e.preventDefault();
     let checkSaleTypeSelect = saleTypes.filter((sale) => sale.isChecked).length;
     if (checkSaleTypeSelect === 0) {
-      return toast.warning("Satış için bir proje seçmediniz");
+      return toast.warning("Satış için bir proje seçmediniz.");
     }
     if (total === 0) {
-      return toast.warning("Satış tutrarı 0 (sıfır) olamaz");
+      return toast.warning("Satış tutarı 0 (sıfır) olamaz.");
     } else {
       let formData = saleTypes.filter(
         (sale) => sale.isChecked && sale.value > 0
@@ -135,7 +135,7 @@ export default function SaleNew() {
           );
         }
       } else {
-        return toast.warning("Eksik bilgi alanlarını doldurun");
+        return toast.warning("Eksik bilgi alanlarını doldurun.");
       }
     }
   };
@@ -217,11 +217,12 @@ export default function SaleNew() {
                     />
                     <label>{type.name}</label>
                   </div>
-                  <div className={`${type.isChecked ? "block" : "hidden"}`}>
+                  <div className={`${type.isChecked ? "flex" : "hidden"}`}>
                     <input
                       type="number"
                       required
                       value={type.value}
+                      min={1}
                       onChange={(e) =>
                         setSaleTypes(
                           saleTypes.map((item) =>

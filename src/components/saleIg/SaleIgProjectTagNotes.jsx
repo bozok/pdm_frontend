@@ -22,7 +22,7 @@ const SaleIgProjectTagNotes = ({ notes }) => {
           </svg>
         }
       >
-        Notlar
+        Notlar <span className="text-blue-400">({notes.length})</span>
       </Accordion.Control>
       <Accordion.Panel>
         <Timeline active={notes.length} bulletSize={24} lineWidth={2}>

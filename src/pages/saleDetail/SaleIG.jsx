@@ -1012,17 +1012,10 @@ export default function SaleIG() {
         <div className="col-span-1 md:col-span-1">
           <div className="rounded-md border border-orange-200 pb-4">
             <div className="mb-4 rounded-md bg-orange-100 p-2">
-              Proje Geçmişi
+              Proje Bilgileri
             </div>
             <div className="ml-2 max-h-[490px] overflow-y-auto">
-              <Accordion defaultValue="history">
-                <SaleIgProjectTagHistory history={history} />
-                <SaleIgProjectTagNotes notes={notes} />
-                <SaleIgProjectTagDocuments
-                  documents={documents}
-                  handleFileDelete={handleFileDelete}
-                  handleFileGet={handleFileGet}
-                />
+              <Accordion defaultValue="customer">
                 <SaleIgProjectTagCustomer
                   firstName={customerInfo.firstName}
                   lastName={customerInfo.lastName}
@@ -1041,6 +1034,13 @@ export default function SaleIG() {
                   registrantOffice={saleInfo.registrantOffice}
                   createdAt={saleInfo.createdAt}
                 />
+                <SaleIgProjectTagNotes notes={notes} />
+                <SaleIgProjectTagDocuments
+                  documents={documents}
+                  handleFileDelete={handleFileDelete}
+                  handleFileGet={handleFileGet}
+                />
+                <SaleIgProjectTagHistory history={history} />
               </Accordion>
             </div>
           </div>

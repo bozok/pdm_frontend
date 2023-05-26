@@ -3,7 +3,7 @@ import { Menu, Button } from "@mantine/core";
 
 const SaleIgActionMenu = ({ openNewNote, setNewNote, openNewAssignee }) => {
   return (
-    <Menu shadow="md" width={200}>
+    <Menu shadow="md" width={200} classNames="m-0">
       <Menu.Target>
         <Button variant="light" color="orange">
           <svg

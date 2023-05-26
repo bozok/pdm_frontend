@@ -156,7 +156,7 @@ export const useCustomer = () => {
             withCredentials: true,
           }
         );
-        if (response.status === 200) {
+        if (response.status === 201) {
           toast.success(response.data.message);
           setIsLoading(false);
         }

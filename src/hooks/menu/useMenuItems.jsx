@@ -10,6 +10,30 @@ export const useMenuItems = () => {
   const [isLoading, setIsLoading] = useState(null);
   const { logout } = useLogout();
 
+  const getMenuItemsByRole = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/menu/listbyrole`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsLoading(false);
+        return response.data.data;
+      } else {
+        await logout();
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
   const getMenuItems = async () => {
     setIsLoading(true);
     setError(null);
@@ -34,5 +58,5 @@ export const useMenuItems = () => {
     }
   };
 
-  return { getMenuItems, isLoading, error };
+  return { getMenuItemsByRole, getMenuItems, isLoading, error };
 };

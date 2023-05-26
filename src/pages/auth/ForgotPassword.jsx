@@ -12,6 +12,7 @@ export default function ForgotPassword() {
       return toast.error("E-posta adresinizi yazmadınız");
     }
     await forgotPassword(email.current.value);
+    email.current.value = "";
   };
   return (
     <div className="selection:bg-orange-500 selection:text-white">

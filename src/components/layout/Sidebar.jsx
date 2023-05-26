@@ -5,11 +5,11 @@ import SidebarItem from "./SidebarItem";
 import { Drawer } from "@mantine/core";
 
 export default function Sidebar({ setIsOpen, isOpen, isClose }) {
-  const { getMenuItems, isLoading } = useMenuItems();
+  const { getMenuItemsByRole, isLoading } = useMenuItems();
   const [menuItems, setMenuItems] = useState([]);
   useEffect(() => {
     async function menuItemsGet() {
-      const items = await getMenuItems();
+      const items = await getMenuItemsByRole();
       setMenuItems(items);
     }
     menuItemsGet();

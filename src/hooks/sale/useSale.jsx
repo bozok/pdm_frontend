@@ -409,6 +409,28 @@ export const useSale = () => {
     }
   };
 
+  const approveSale = async (id) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.put(`${BACKEND_URL}/api/sale/${id}`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsLoading(false);
+        toast.success("Satış durumu güncellendi");
+        return true;
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await logout();
+      }
+      toast.error(error.response.data.message);
+      setError(error.response.data.message);
+      setIsLoading(false);
+    }
+  };
+
   return {
     newSale,
     getSales,
@@ -421,6 +443,7 @@ export const useSale = () => {
     deleteFileIG,
     getFileIG,
     changeAssignee,
+    approveSale,
     isLoading,
     error,
   };

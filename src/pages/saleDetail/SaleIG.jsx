@@ -280,7 +280,7 @@ export default function SaleIG() {
     if (kosgebStatus == "Ret" && denyDate == null) {
       return toast.warning("Son itiraz tarihini giriniz.");
     }
-    const newStatus = checkStatus();
+    let newStatus = checkStatus();
     if (denyCounter < 2) {
       let tmpDenyCounter = denyCounter;
       if (kosgebStatus == "Ret") {
@@ -311,7 +311,6 @@ export default function SaleIG() {
         kosgebStatus == "Ret" ? tmpDenyCounter : denyCounter,
         newStatus
       );
-      //setSaleId(0);
       getSaleInfo();
     } else {
       return toast.error(
@@ -447,6 +446,8 @@ export default function SaleIG() {
             openNewNote={openNewNote}
             setNewNote={setNewNote}
             openNewAssignee={openNewAssignee}
+            status={saleInfo.status}
+            getSaleInfo={getSaleInfo}
           />
         </div>
       </div>

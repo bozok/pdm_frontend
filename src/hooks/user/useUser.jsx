@@ -36,16 +36,13 @@ export const useUser = () => {
       role: role,
       password: "1234qwer",
     };
+    let responseStatus = 0;
     if (photo == import.meta.env.VITE_DEFAULT_PROFILE_IMG) {
-      saveUser(formData, "new", 0);
+      responseStatus = saveUser(formData, "new", 0);
     } else {
       uploadPhotoToCloudinary(formData, "new", 0);
     }
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
-    }
+    return responseStatus;
   };
 
   const getUser = async (id) => {
@@ -152,7 +149,8 @@ export const useUser = () => {
     mobileNumber,
     email,
     role,
-    photo
+    photo,
+    oldPhoto
   ) => {
     const formData = {
       identityNo: identityNo,
@@ -165,17 +163,23 @@ export const useUser = () => {
       role: role,
       photo: photo,
     };
+    // console.log(photo);
+    // console.log(oldPhoto);
     setIsLoading(true);
     setError(null);
-    if (photo == import.meta.env.VITE_DEFAULT_PROFILE_IMG) {
+    if (photo === import.meta.env.VITE_DEFAULT_PROFILE_IMG) {
       saveUser(formData, "update", id);
     } else {
-      uploadPhotoToCloudinary(formData, "update", id);
-    }
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
+      if (photo === oldPhoto) {
+        saveUser(formData, "update", id);
+      } else {
+        uploadPhotoToCloudinary(formData, "update", id);
+      }
+      if (error === null) {
+        return true;
+      } else {
+        return false;
+      }
     }
   };
 
@@ -212,6 +216,7 @@ export const useUser = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -219,6 +224,7 @@ export const useUser = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     } else {
       // update user
@@ -234,6 +240,7 @@ export const useUser = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -241,6 +248,7 @@ export const useUser = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     }
   }

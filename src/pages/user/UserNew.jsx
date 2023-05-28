@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Loader from "../../components/loader/Loader";
-import { toast } from "react-toastify";
 import { useRegion } from "../../hooks/region/useRegion";
 import { useOffice } from "../../hooks/office/useOffice";
 import { useRole } from "../../hooks/role/useRole";
@@ -42,6 +41,15 @@ export default function UserNew() {
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
   };
+
+  function validateIsNumber(value) {
+    var regex = /^[0-9]+$/;
+    if (value.match(regex)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   function addPhoto(e) {
     e.preventDefault();
@@ -91,6 +99,10 @@ export default function UserNew() {
       setIdentiyError("Geçersiz TC Kimlik numarası");
       error = true;
     }
+    if (validateIsNumber(identityNo)) {
+      setIdentiyError("Geçersiz TC Kimlik numarası");
+      error = true;
+    }
     if (
       isEmptyOrSpaces(firstName) ||
       firstName.length < 3 ||
@@ -117,6 +129,10 @@ export default function UserNew() {
       mobileNumber.length > 10
     ) {
       setMobileNumberError("Geçersiz telefon bilgisi");
+      error = true;
+    }
+    if (validateIsNumber(mobileNumber)) {
+      setIdentiyError("Geçersiz telefon bilgisi");
       error = true;
     }
     if (isEmptyOrSpaces(role) || role == "Seçiniz") {
@@ -149,7 +165,7 @@ export default function UserNew() {
         role,
         uploads.length == 0 ? photo : uploads[0]
       );
-      if (status) {
+      if (status === 200) {
         clearForm();
       }
     }

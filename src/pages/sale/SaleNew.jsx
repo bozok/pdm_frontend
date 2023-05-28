@@ -222,6 +222,7 @@ export default function SaleNew() {
                       type="number"
                       required
                       value={type.value}
+                      maxLength={7}
                       min={1}
                       onChange={(e) =>
                         setSaleTypes(

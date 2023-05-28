@@ -9,28 +9,54 @@ import { useRole } from "../../hooks/role/useRole";
 import { Link } from "react-router-dom";
 
 export default function UserUpdate() {
-  const { getUser, updateUser, changeUserStatus, isLoading, isLoadingUpdate } =
-    useUser();
+  const { getUser, updateUser, changeUserStatus, isLoading } = useUser();
   const { getRegions } = useRegion();
   const { getOfficesByRegion } = useOffice();
   const { getRoles } = useRole();
   const param = useParams();
   const [uploads, setUploads] = useState([]);
   const [photo, setPhoto] = useState("");
+  const [oldPhoto, setOldPhoto] = useState("");
   const [id, setId] = useState();
   const [identityNo, setIdentityNo] = useState("");
+  const [identityError, setIdentiyError] = useState("");
   const [firstName, setFirstName] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
   const [lastName, setLastName] = useState("");
+  const [lastNameError, setLastNameError] = useState("");
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState("");
+  const [regionError, setRegionError] = useState();
   const [offices, setOffices] = useState([]);
   const [office, setOffice] = useState("");
+  const [officeError, setOfficeError] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  const [mobileNumberError, setMobileNumberError] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [roles, setRoles] = useState([]);
   const [role, setRole] = useState("");
+  const [roleError, setRoleError] = useState("");
   const [roleTmp, setRoleTmp] = useState("");
   const [status, setStatus] = useState(false);
+
+  const isEmptyOrSpaces = (str) => {
+    return str === null || str.match(/^ *$/) !== null;
+  };
+  const validateEmail = (email) => {
+    return email.match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+  };
+
+  function validateIsNumber(value) {
+    var regex = /^[0-9]+$/;
+    if (value.match(regex)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   function addPhoto(e) {
     e.preventDefault();
@@ -45,11 +71,16 @@ export default function UserUpdate() {
     }
   }
 
+  const resetPhoto = () => {
+    setPhoto(import.meta.env.VITE_DEFAULT_PROFILE_IMG);
+  };
+
   const handleUserStatus = async (e) => {
     e.preventDefault();
     const newUserStatus = await changeUserStatus(param.id);
     if (newUserStatus) {
       setPhoto(newUserStatus.photo);
+      setOldPhoto(newUserStatus.photo);
       setId(newUserStatus._id);
       setIdentityNo(newUserStatus.identityNo);
       setFirstName(newUserStatus.firstName);
@@ -66,36 +97,28 @@ export default function UserUpdate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !identityNo ||
-      !firstName ||
-      !lastName ||
-      !region ||
-      !office ||
-      !mobileNumber ||
-      !email ||
-      !role
-    ) {
-      return toast.error("Tüm alanları doldurunuz");
+    let errorStatus = checkErrors();
+    if (!errorStatus) {
+      const status = await updateUser(
+        id,
+        identityNo,
+        firstName,
+        lastName,
+        region,
+        office,
+        mobileNumber,
+        email,
+        role,
+        uploads.length == 0 ? photo : uploads[0],
+        oldPhoto
+      );
     }
-
-    await updateUser(
-      id,
-      identityNo,
-      firstName,
-      lastName,
-      region,
-      office,
-      mobileNumber,
-      email,
-      role,
-      uploads.length == 0 ? photo : uploads[0]
-    );
   };
 
   async function getEmployeeInfo() {
     const employeeInfo = await getUser(param.id);
     setPhoto(employeeInfo.photo);
+    setOldPhoto(employeeInfo.photo);
     setId(employeeInfo._id);
     setIdentityNo(employeeInfo.identityNo);
     setFirstName(employeeInfo.firstName);
@@ -122,6 +145,68 @@ export default function UserUpdate() {
     setRoles(roleList);
   }
 
+  function checkErrors() {
+    clearErrors();
+    let error = false;
+    if (
+      isEmptyOrSpaces(identityNo) ||
+      identityNo.length < 11 ||
+      identityNo.length > 11
+    ) {
+      setIdentiyError("Geçersiz TC Kimlik numarası");
+      error = true;
+    }
+    if (validateIsNumber(identityNo)) {
+      setIdentiyError("Geçersiz TC Kimlik numarası");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(firstName) ||
+      firstName.length < 3 ||
+      firstName.length > 20
+    ) {
+      setFirstNameError("Geçersiz isim bilgisi");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(lastName) ||
+      lastName.length < 2 ||
+      lastName.length > 20
+    ) {
+      setLastNameError("Geçersiz soyisim bilgisi");
+      error = true;
+    }
+    if (!validateEmail(email)) {
+      setEmailError("Geçersiz e-posta bilgisi");
+      error = true;
+    }
+    if (
+      isEmptyOrSpaces(mobileNumber) ||
+      mobileNumber.length < 10 ||
+      mobileNumber.length > 10
+    ) {
+      setMobileNumberError("Geçersiz telefon bilgisi");
+      error = true;
+    }
+    if (validateIsNumber(mobileNumber)) {
+      setIdentiyError("Geçersiz telefon bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(role) || role == "Seçiniz") {
+      setRoleError("Geçersiz rol bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(region) || region == "Seçiniz") {
+      setRegionError("Geçersiz bölge bilgisi");
+      error = true;
+    }
+    if (isEmptyOrSpaces(office) || office == "Seçiniz") {
+      setOfficeError("Geçersiz ofis bilgisi");
+      error = true;
+    }
+    return error;
+  }
+
   useEffect(() => {
     if (param.id) {
       regionListGet();
@@ -133,6 +218,18 @@ export default function UserUpdate() {
   useEffect(() => {
     officeListGet(region);
   }, [region]);
+
+  function clearErrors() {
+    setIdentiyError("");
+    setFirstNameError("");
+    setLastNameError("");
+    setEmailError("");
+    setMobileNumberError("");
+    setRoleError("");
+    setRegionError("");
+    setOfficeError("");
+  }
+
   return (
     <>
       {isLoading && <Loader />}
@@ -156,15 +253,23 @@ export default function UserUpdate() {
                 alt=""
                 className="m-auto h-56 w-56 rounded-md border-2 object-cover"
               />
-              <label className="mt-2 flex cursor-pointer justify-center font-roboto font-bold text-blue-500">
-                <input
-                  type={"file"}
-                  accept=".jpg, .png, .jpeg, .gif"
-                  className="hidden"
-                  onChange={addPhoto}
-                />
-                <span>Resmi Değiştir</span>
-              </label>
+              <div className="flex justify-center gap-4">
+                <label className="mt-2 flex cursor-pointer justify-center font-roboto font-bold text-orange-400">
+                  <input
+                    type={"file"}
+                    accept=".jpg, .png, .jpeg, .gif"
+                    className="hidden"
+                    onChange={addPhoto}
+                  />
+                  <span>Resmi Değiştir</span>
+                </label>
+                <label
+                  className="mt-2 flex cursor-pointer justify-center font-roboto font-bold text-purple-400"
+                  onClick={resetPhoto}
+                >
+                  Varsayılan
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -177,16 +282,19 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 TC Kimlik Numarası
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {identityError}
+              </span>
               <div className="mt-1">
                 <input
                   value={identityNo}
                   type="text"
-                  required
-                  minLength={11}
-                  maxLength={11}
-                  pattern="[0-9]+"
                   onChange={(e) => setIdentityNo(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    identityError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -194,14 +302,19 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 İsim
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {firstNameError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={firstName}
-                  required
-                  minLength={3}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    firstNameError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -209,14 +322,19 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Soyisim
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {lastNameError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={lastName}
-                  required
-                  minLength={2}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    lastNameError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -224,12 +342,16 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Bölge
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {regionError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
                   {regions.map((item, index) => {
                     return (
@@ -245,12 +367,16 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Ofis
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {officeError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={office}
                   onChange={(e) => setOffice(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
                   {offices.map((item, index) => {
                     return (
@@ -273,13 +399,19 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 E-posta
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {emailError}
+              </span>
               <div className="mt-1">
                 <input
-                  type="email"
+                  type="text"
                   value={email}
-                  required
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    emailError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -287,17 +419,20 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Cep Telefonu
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {mobileNumberError}
+              </span>
               <div className="mt-1">
                 <input
                   type="text"
                   value={mobileNumber}
                   placeholder="5XX XXX XX XX"
-                  required
-                  minLength={10}
-                  maxLength={10}
-                  pattern="[0-9]+"
                   onChange={(e) => setMobileNumber(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    mobileNumberError
+                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
+                      : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 />
               </div>
             </div>
@@ -305,12 +440,16 @@ export default function UserUpdate() {
               <label className="text-sm font-semibold leading-6 text-gray-900">
                 Rol
               </label>
+              <span className="ml-2 font-roboto text-xs text-red-500">
+                {roleError}
+              </span>
               <div className="mt-1">
                 <select
-                  required
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
+                  className={`${
+                    roleError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
+                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
                 >
                   {roles.map((item, index) => {
                     return (
@@ -326,6 +465,7 @@ export default function UserUpdate() {
           <div>
             <button
               type="submit"
+              disabled={status ? false : true}
               className="mt-4 flex w-full items-center justify-center rounded-md bg-sky-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:opacity-25"
             >
               <svg

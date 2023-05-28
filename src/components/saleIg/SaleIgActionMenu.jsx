@@ -1,7 +1,26 @@
 import React from "react";
 import { Menu, Button } from "@mantine/core";
+import { useAuthContext } from "../../hooks/auth/useAuthContext";
+import { useSale } from "../../hooks/sale/useSale";
+import { Link, useParams } from "react-router-dom";
 
-const SaleIgActionMenu = ({ openNewNote, setNewNote, openNewAssignee }) => {
+const SaleIgActionMenu = ({
+  openNewNote,
+  setNewNote,
+  openNewAssignee,
+  status,
+  getSaleInfo,
+}) => {
+  const param = useParams();
+  const { user } = useAuthContext();
+  const { approveSale } = useSale();
+  const handleApproveSale = async (e) => {
+    e.preventDefault();
+    let response = await approveSale(param.id);
+    if (response) {
+      getSaleInfo();
+    }
+  };
   return (
     <Menu shadow="md" width={200} classNames="m-0">
       <Menu.Target>
@@ -40,6 +59,17 @@ const SaleIgActionMenu = ({ openNewNote, setNewNote, openNewAssignee }) => {
           Atananı Değiştir
         </Menu.Item>
         <Menu.Item disabled>Tutarı Değiştir</Menu.Item>
+        {status === "Proje Kontrol Bekliyor" &&
+          (user.role === "sysgod" || user.role === "Admin") && (
+            <Menu.Item
+              color="green"
+              onClick={handleApproveSale}
+              className="font-semibold"
+            >
+              Projeyi Onayla
+            </Menu.Item>
+          )}
+
         <Menu.Divider />
         <Menu.Item color="red">Süreci İptal Et</Menu.Item>
       </Menu.Dropdown>

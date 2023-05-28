@@ -81,9 +81,15 @@ const Table = ({ data, setList, rowsPerPage }) => {
               region,
               office,
               role,
+              status,
             } = item;
             return (
-              <tr key={index} className="group text-xs hover:bg-orange-50">
+              <tr
+                key={index}
+                className={`${
+                  status ? "hover:bg-orange-50" : "bg-red-100"
+                } group text-xs `}
+              >
                 <td className="px-4 py-2">{identityNo}</td>
                 <td className="px-4 py-2">{firstName}</td>
                 <td className="px-4 py-2">{lastName}</td>

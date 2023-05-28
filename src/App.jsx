@@ -30,7 +30,6 @@ import ChangePassword from "./pages/auth/ChangePassword";
 import SaleList from "./pages/sale/SaleList";
 import SaleNew from "./pages/sale/SaleNew";
 import SaleIG from "./pages/saleDetail/SaleIG";
-import ApproveList from "./pages/approve/ApproveList";
 //import { useLoginStatus } from "./hooks/useLoginStatus";
 
 axios.defaults.withCredentials = true;
@@ -228,18 +227,6 @@ function App() {
             user ? (
               <Layout>
                 <SaleList />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/approve/list"
-          element={
-            user ? (
-              <Layout>
-                <ApproveList />
               </Layout>
             ) : (
               <Navigate to="/login" />

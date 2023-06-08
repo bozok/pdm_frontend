@@ -1,26 +1,51 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Loader from "../../components/loader/Loader";
 import { useChangePassword } from "../../hooks/auth/useChangePassword";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export default function ChangePassword() {
-  const { changePassword, isLoading, error } = useChangePassword();
+  // formik logics
+  const formik = useFormik({
+    // Initialize
+    initialValues: {
+      password: "",
+      newPassword: "",
+      newPasswordAgain: "",
+    },
+    // Validation
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .required("Mevcut şifrenizi giriniz")
+        .min(8, "Şifreniz en az 8 karakter olmalı"),
+      newPassword: Yup.string()
+        .required("Yeni şifrenizi giriniz")
+        .min(8, "Yeni şifreniz en az 8 karakter olmalı"),
+      newPasswordAgain: Yup.string()
+        .required("Yeni şifrenizi tekrar giriniz")
+        .min(8, "Yeni şifreniz en az 8 karakter olmalı"),
+    }),
 
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newPasswordAgain, setNewPasswordAgain] = useState("");
+    // From submit
+    onSubmit: async (values) => {
+      //console.log(values);
+      const status = await handleFormSubmit(values);
+      if (status === 200) {
+        navigate(`/`);
+      }
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    changePassword(password, newPassword, newPasswordAgain);
-    if (error == null) {
-      clearForm();
-    }
-  };
+  const navigate = useNavigate();
+  const { changePassword, isLoading } = useChangePassword();
 
-  const clearForm = () => {
-    setPassword("");
-    setNewPassword("");
-    setNewPasswordAgain("");
+  const handleFormSubmit = () => {
+    const status = changePassword(
+      formik.values.password,
+      formik.values.newPassword,
+      formik.values.newPasswordAgain
+    );
+    return status;
   };
 
   return (
@@ -33,7 +58,7 @@ export default function ChangePassword() {
       </div>
       <form
         className="grid grid-cols-1 gap-6 md:grid-cols-6"
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
           <div className="rounded-md border border-orange-200">
@@ -41,49 +66,74 @@ export default function ChangePassword() {
               Şifre Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Mevcut Şifre
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.password && formik.errors.password
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.password && formik.errors.password
+                  ? formik.errors.password
+                  : "Mevcut Şifre"}
               </label>
               <div className="mt-1">
                 <input
                   type="password"
-                  value={password}
-                  autoComplete="false"
-                  minLength={8}
-                  required
-                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Yeni Şifre
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.newPassword && formik.errors.newPassword
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.newPassword && formik.errors.newPassword
+                  ? formik.errors.newPassword
+                  : "Yeni Şifre"}
               </label>
               <div className="mt-1">
                 <input
                   type="password"
-                  value={newPassword}
-                  autoComplete="false"
+                  name="newPassword"
                   minLength={8}
-                  required
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  value={formik.values.newPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Yeni Şifre (Tekrar)
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.newPasswordAgain &&
+                  formik.errors.newPasswordAgain
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.newPasswordAgain &&
+                formik.errors.newPasswordAgain
+                  ? formik.errors.newPasswordAgain
+                  : "Yeni Şifre (Tekrar)"}
               </label>
               <div className="mt-1">
                 <input
                   type="password"
-                  value={newPasswordAgain}
-                  autoComplete="false"
+                  name="newPasswordAgain"
                   minLength={8}
-                  required
-                  onChange={(e) => setNewPasswordAgain(e.target.value)}
+                  value={formik.values.newPasswordAgain}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>

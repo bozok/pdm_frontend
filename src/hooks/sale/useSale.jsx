@@ -31,7 +31,7 @@ export const useSale = () => {
       price: total,
       currency: currencyType,
       note: note,
-      assignedId: user._id,
+      assignedId: user,
     };
     saveSale(formData, "new", 0);
     if (error !== null) {
@@ -154,6 +154,7 @@ export const useSale = () => {
           setIsLoading(false);
           navigate(`/sale/list`);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -161,6 +162,7 @@ export const useSale = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     } else {
       // update sale
@@ -176,6 +178,7 @@ export const useSale = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -183,6 +186,7 @@ export const useSale = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     }
   }

@@ -36,12 +36,9 @@ export const useCustomer = () => {
       supplierMachinist: supplierMachinist,
       comment: comment,
     };
-    saveCustomer(formData, "new", 0);
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
-    }
+    let responseStatus = 0;
+    responseStatus = saveCustomer(formData, "new", 0);
+    return responseStatus;
   };
 
   const getCustomer = async (id) => {
@@ -113,14 +110,11 @@ export const useCustomer = () => {
       supplierMachinist: supplierMachinist,
       comment: comment,
     };
+    let responseStatus = 0;
     setIsLoading(true);
     setError(null);
-    saveCustomer(formData, "update", id);
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
-    }
+    responseStatus = saveCustomer(formData, "update", id);
+    return responseStatus;
   };
 
   const changeCustomerStatus = async (id) => {
@@ -160,6 +154,7 @@ export const useCustomer = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -167,6 +162,7 @@ export const useCustomer = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     } else {
       // update customer
@@ -182,6 +178,7 @@ export const useCustomer = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -189,6 +186,7 @@ export const useCustomer = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     }
   }

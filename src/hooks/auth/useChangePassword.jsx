@@ -34,10 +34,12 @@ export const useChangePassword = () => {
         toast.success(response.data.message);
         setIsLoading(false);
       }
+      return response.status;
     } catch (error) {
       setError(error.response.data.message);
       toast.error(error.response.data.message);
       setIsLoading(false);
+      return 400;
     }
   };
 

@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import Loader from "../../components/loader/Loader";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -6,39 +5,80 @@ import { useUser } from "../../hooks/user/useUser";
 import { useRegion } from "../../hooks/region/useRegion";
 import { useOffice } from "../../hooks/office/useOffice";
 import { useRole } from "../../hooks/role/useRole";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export default function UserUpdate() {
-  const { getUser, updateUser, changeUserStatus, isLoading } = useUser();
+  // formik logics
+  const formik = useFormik({
+    // Initialize
+    initialValues: {
+      id: "",
+      identityNo: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      mobileNumber: "",
+      region: "Seçiniz",
+      office: "",
+      role: "Seçiniz",
+      photo: import.meta.env.VITE_DEFAULT_PROFILE_IMG,
+      oldPhoto: import.meta.env.VITE_DEFAULT_PROFILE_IMG,
+      status: false,
+    },
+    // Validation
+    validationSchema: Yup.object({
+      identityNo: Yup.string()
+        .required("TC kimlik bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
+      firstName: Yup.string()
+        .required("İsim bilgisi zorunludur")
+        .matches(/^[aA-zZ\s]+$/, "İsim alanı harflerden oluşmalıdır")
+        .min(3, "İsim bilgisi en az 3 karakter olmalı"),
+      lastName: Yup.string()
+        .required("Soyisim bilgisi zorunludur")
+        .matches(/^[aA-zZ\s]+$/, "Soyisim alanı harflerden oluşmalıdır")
+        .min(2, "Soyisim bilgisi en az 2 karakter olmalı"),
+      region: Yup.string()
+        .required("Bölge bilgisi zorunludur")
+        .notOneOf(["Seçiniz"], "Bölge bilgisi seçiniz"),
+      office: Yup.string()
+        .required("Ofis bilgisi zorunludur")
+        .notOneOf(["Seçiniz"], "Ofis bilgisi seçiniz"),
+      email: Yup.string()
+        .email("Geçerli bir e-posta adresi giriniz")
+        .required("E-posta bilgisi zorunludur"),
+      mobileNumber: Yup.string()
+        .required("Cep telefonu bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(10, "Cep telefonu bilgisi 10 hane olmalıdır"),
+      role: Yup.string()
+        .required("Rol bilgisi zorunludur")
+        .notOneOf(["Seçiniz"], "Rol bilgisi seçiniz"),
+    }),
+
+    // From submit
+    onSubmit: (values) => {
+      //console.log(values);
+      const status = handleFormSubmit(values);
+      if (status === 200) {
+        getEmployeeInfo();
+      }
+    },
+  });
+
+  const navigate = useNavigate();
   const { getRegions } = useRegion();
   const { getOfficesByRegion } = useOffice();
   const { getRoles } = useRole();
-  const param = useParams();
+  const { getUser, updateUser, changeUserStatus, isLoading } = useUser();
   const [uploads, setUploads] = useState([]);
-  const [photo, setPhoto] = useState("");
-  const [oldPhoto, setOldPhoto] = useState("");
-  const [id, setId] = useState();
-  const [identityNo, setIdentityNo] = useState("");
-  const [identityError, setIdentiyError] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [firstNameError, setFirstNameError] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [lastNameError, setLastNameError] = useState("");
   const [regions, setRegions] = useState([]);
-  const [region, setRegion] = useState("");
-  const [regionError, setRegionError] = useState();
   const [offices, setOffices] = useState([]);
-  const [office, setOffice] = useState("");
-  const [officeError, setOfficeError] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [mobileNumberError, setMobileNumberError] = useState("");
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
   const [roles, setRoles] = useState([]);
-  const [role, setRole] = useState("");
-  const [roleError, setRoleError] = useState("");
-  const [roleTmp, setRoleTmp] = useState("");
-  const [status, setStatus] = useState(false);
+  const param = useParams();
 
   const isEmptyOrSpaces = (str) => {
     return str === null || str.match(/^ *$/) !== null;
@@ -65,146 +105,75 @@ export default function UserUpdate() {
     if (files.length > 0) {
       for (const file of files) {
         const tmpURL = URL.createObjectURL(file);
-        setPhoto(tmpURL);
+        formik.values.photo = tmpURL;
         setUploads((prevUploads) => [...prevUploads, file]);
       }
     }
   }
 
   const resetPhoto = () => {
-    setPhoto(import.meta.env.VITE_DEFAULT_PROFILE_IMG);
+    //formik.values.photo = import.meta.env.VITE_DEFAULT_PROFILE_IMG;
+    formik.setFieldValue("photo", import.meta.env.VITE_DEFAULT_PROFILE_IMG);
   };
 
   const handleUserStatus = async (e) => {
     e.preventDefault();
     const newUserStatus = await changeUserStatus(param.id);
     if (newUserStatus) {
-      setPhoto(newUserStatus.photo);
-      setOldPhoto(newUserStatus.photo);
-      setId(newUserStatus._id);
-      setIdentityNo(newUserStatus.identityNo);
-      setFirstName(newUserStatus.firstName);
-      setLastName(newUserStatus.lastName);
-      setRegion(newUserStatus.region);
-      setOffice(newUserStatus.office);
-      setMobileNumber(newUserStatus.mobileNumber);
-      setEmail(newUserStatus.email);
-      setRole(newUserStatus.role);
-      setRoleTmp(newUserStatus.role);
-      setStatus(newUserStatus.status);
+      formik.setFieldValue("photo", newUserStatus.photo);
+      formik.setFieldValue("oldPhoto", newUserStatus.photo);
+      formik.setFieldValue("id", newUserStatus._id);
+      formik.setFieldValue("identityNo", newUserStatus.identityNo);
+      formik.setFieldValue("firstName", newUserStatus.firstName);
+      formik.setFieldValue("lastName", newUserStatus.lastName);
+      formik.setFieldValue("region", newUserStatus.region);
+      formik.setFieldValue("office", newUserStatus.office);
+      formik.setFieldValue("mobileNumber", newUserStatus.mobileNumber);
+      formik.setFieldValue("email", newUserStatus.email);
+      formik.setFieldValue("role", newUserStatus.role);
+      formik.setFieldValue("status", newUserStatus.status);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let errorStatus = checkErrors();
-    if (!errorStatus) {
-      const status = await updateUser(
-        id,
-        identityNo,
-        firstName,
-        lastName,
-        region,
-        office,
-        mobileNumber,
-        email,
-        role,
-        uploads.length == 0 ? photo : uploads[0],
-        oldPhoto
-      );
-    }
+  const handleFormSubmit = async (values) => {
+    const status = await updateUser(
+      formik.values.id,
+      formik.values.identityNo,
+      formik.values.firstName,
+      formik.values.lastName,
+      formik.values.region,
+      formik.values.office,
+      formik.values.mobileNumber,
+      formik.values.email,
+      formik.values.role,
+      uploads.length == 0 ? formik.values.photo : uploads[0],
+      formik.values.oldPhoto
+    );
+    return status;
   };
 
   async function getEmployeeInfo() {
     const employeeInfo = await getUser(param.id);
-    setPhoto(employeeInfo.photo);
-    setOldPhoto(employeeInfo.photo);
-    setId(employeeInfo._id);
-    setIdentityNo(employeeInfo.identityNo);
-    setFirstName(employeeInfo.firstName);
-    setLastName(employeeInfo.lastName);
-    setRegion(employeeInfo.region);
-    setOffice(employeeInfo.office);
-    setMobileNumber(employeeInfo.mobileNumber);
-    setEmail(employeeInfo.email);
-    setRole(employeeInfo.role);
-    setRoleTmp(employeeInfo.role);
-    setStatus(employeeInfo.status);
+    formik.setFieldValue("photo", employeeInfo.photo);
+    formik.setFieldValue("oldPhoto", employeeInfo.photo);
+    formik.setFieldValue("id", employeeInfo._id);
+    formik.setFieldValue("identityNo", employeeInfo.identityNo);
+    formik.setFieldValue("firstName", employeeInfo.firstName);
+    formik.setFieldValue("lastName", employeeInfo.lastName);
+    formik.setFieldValue("region", employeeInfo.region);
+    formik.setFieldValue("office", employeeInfo.office);
+    formik.setFieldValue("mobileNumber", employeeInfo.mobileNumber);
+    formik.setFieldValue("email", employeeInfo.email);
+    formik.setFieldValue("role", employeeInfo.role);
+    formik.setFieldValue("status", employeeInfo.status);
   }
   async function regionListGet() {
     const regionList = await getRegions();
     setRegions(regionList);
   }
-  async function officeListGet(r) {
-    const officeList = await getOfficesByRegion(r);
-    setOffices(officeList);
-  }
-
   async function roleListGet() {
     const roleList = await getRoles();
     setRoles(roleList);
-  }
-
-  function checkErrors() {
-    clearErrors();
-    let error = false;
-    if (
-      isEmptyOrSpaces(identityNo) ||
-      identityNo.length < 11 ||
-      identityNo.length > 11
-    ) {
-      setIdentiyError("Geçersiz TC Kimlik numarası");
-      error = true;
-    }
-    if (validateIsNumber(identityNo)) {
-      setIdentiyError("Geçersiz TC Kimlik numarası");
-      error = true;
-    }
-    if (
-      isEmptyOrSpaces(firstName) ||
-      firstName.length < 3 ||
-      firstName.length > 20
-    ) {
-      setFirstNameError("Geçersiz isim bilgisi");
-      error = true;
-    }
-    if (
-      isEmptyOrSpaces(lastName) ||
-      lastName.length < 2 ||
-      lastName.length > 20
-    ) {
-      setLastNameError("Geçersiz soyisim bilgisi");
-      error = true;
-    }
-    if (!validateEmail(email)) {
-      setEmailError("Geçersiz e-posta bilgisi");
-      error = true;
-    }
-    if (
-      isEmptyOrSpaces(mobileNumber) ||
-      mobileNumber.length < 10 ||
-      mobileNumber.length > 10
-    ) {
-      setMobileNumberError("Geçersiz telefon bilgisi");
-      error = true;
-    }
-    if (validateIsNumber(mobileNumber)) {
-      setIdentiyError("Geçersiz telefon bilgisi");
-      error = true;
-    }
-    if (isEmptyOrSpaces(role) || role == "Seçiniz") {
-      setRoleError("Geçersiz rol bilgisi");
-      error = true;
-    }
-    if (isEmptyOrSpaces(region) || region == "Seçiniz") {
-      setRegionError("Geçersiz bölge bilgisi");
-      error = true;
-    }
-    if (isEmptyOrSpaces(office) || office == "Seçiniz") {
-      setOfficeError("Geçersiz ofis bilgisi");
-      error = true;
-    }
-    return error;
   }
 
   useEffect(() => {
@@ -216,20 +185,20 @@ export default function UserUpdate() {
   }, [param.id]);
 
   useEffect(() => {
-    officeListGet(region);
-  }, [region]);
+    async function officeListGet() {
+      const officeList = await getOfficesByRegion(formik.values.region);
+      setOffices(officeList);
+      //formik.values.office = "Seçiniz";
+    }
+    officeListGet();
+  }, [formik.values.region]);
 
-  function clearErrors() {
-    setIdentiyError("");
-    setFirstNameError("");
-    setLastNameError("");
-    setEmailError("");
-    setMobileNumberError("");
-    setRoleError("");
-    setRegionError("");
-    setOfficeError("");
-  }
-
+  const handleGoBack = (e) => {
+    e.preventDefault();
+    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+      navigate(`/user/list`);
+    }
+  };
   return (
     <>
       {isLoading && <Loader />}
@@ -240,7 +209,7 @@ export default function UserUpdate() {
       </div>
       <form
         className="grid grid-cols-1 gap-6 md:grid-cols-6"
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
           <div className="rounded-md border border-orange-200">
@@ -249,7 +218,7 @@ export default function UserUpdate() {
             </div>
             <div className="m-2">
               <img
-                src={photo}
+                src={formik.values.photo}
                 alt=""
                 className="m-auto h-56 w-56 rounded-md border-2 object-cover"
               />
@@ -279,80 +248,110 @@ export default function UserUpdate() {
               Genel Bilgiler
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                TC Kimlik Numarası
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.identityNo && formik.errors.identityNo
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.identityNo && formik.errors.identityNo
+                  ? formik.errors.identityNo
+                  : "TC Kimlik Numarası"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {identityError}
-              </span>
               <div className="mt-1">
                 <input
-                  value={identityNo}
                   type="text"
-                  onChange={(e) => setIdentityNo(e.target.value)}
-                  className={`${
-                    identityError
-                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
-                      : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="identityNo"
+                  maxLength={11}
+                  value={formik.values.identityNo}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                İsim
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.firstName && formik.errors.firstName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.firstName && formik.errors.firstName
+                  ? formik.errors.firstName
+                  : "İsim"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {firstNameError}
-              </span>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className={`${
-                    firstNameError
-                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
-                      : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="firstName"
+                  maxLength={20}
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Soyisim
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.lastName && formik.errors.lastName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.lastName && formik.errors.lastName
+                  ? formik.errors.lastName
+                  : "Soyisim"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {lastNameError}
-              </span>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className={`${
-                    lastNameError
-                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
-                      : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="lastName"
+                  maxLength={20}
+                  value={formik.values.lastName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Bölge
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.region && formik.errors.region
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.region && formik.errors.region
+                  ? formik.errors.region
+                  : "Bölge"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {regionError}
-              </span>
               <div className="mt-1">
                 <select
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  className={`${
-                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="region"
+                  value={formik.values.region}
+                  onChange={async (e) => {
+                    const { value } = e.target;
+                    formik.setFieldValue("region", value);
+                    formik.setFieldValue("office", "Seçiniz");
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 >
+                  <option value={"Seçiniz"}>Seçiniz</option>
                   {regions.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -364,20 +363,32 @@ export default function UserUpdate() {
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Ofis
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.office && formik.errors.office
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.office && formik.errors.office
+                  ? formik.errors.office
+                  : "Ofis"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {officeError}
-              </span>
               <div className="mt-1">
                 <select
-                  value={office}
-                  onChange={(e) => setOffice(e.target.value)}
-                  className={`${
-                    regionError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="office"
+                  value={formik.values.office}
+                  onChange={formik.handleChange}
+                  // onChange={async (e) => {
+                  //   const { value } = e.target;
+                  //   formik.setFieldValue("office", value);
+                  // }}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 >
+                  <option value={"Seçiniz"}>Seçiniz</option>
                   {offices.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -396,61 +407,80 @@ export default function UserUpdate() {
               Erişim Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                E-posta
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.email && formik.errors.email
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.email && formik.errors.email
+                  ? formik.errors.email
+                  : "E-posta"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {emailError}
-              </span>
               <div className="mt-1">
                 <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`${
-                    emailError
-                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
-                      : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  type="email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Cep Telefonu
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.mobileNumber && formik.errors.mobileNumber
+                  ? formik.errors.mobileNumber
+                  : "Cep Telefonu"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {mobileNumberError}
-              </span>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={mobileNumber}
-                  placeholder="5XX XXX XX XX"
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  className={`${
-                    mobileNumberError
-                      ? "text-red-500 ring-2 ring-red-300 focus:ring-red-400"
-                      : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  placeholder="5XX-XXX-XX-XX"
+                  name="mobileNumber"
+                  maxLength={10}
+                  value={formik.values.mobileNumber}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Rol
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.role && formik.errors.role
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.role && formik.errors.role
+                  ? formik.errors.role
+                  : "Rol"}
               </label>
-              <span className="ml-2 font-roboto text-xs text-red-500">
-                {roleError}
-              </span>
               <div className="mt-1">
                 <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className={`${
-                    roleError ? "ring-2 ring-red-300 focus:ring-red-400" : ""
-                  } w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400`}
+                  name="role"
+                  value={formik.values.role}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={
+                    "w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm outline-none ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-400"
+                  }
                 >
+                  <option value={"Seçiniz"}>Seçiniz</option>
                   {roles.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -465,7 +495,7 @@ export default function UserUpdate() {
           <div>
             <button
               type="submit"
-              disabled={status ? false : true}
+              disabled={formik.values.status ? false : true}
               className="mt-4 flex w-full items-center justify-center rounded-md bg-sky-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:opacity-25"
             >
               <svg
@@ -484,7 +514,7 @@ export default function UserUpdate() {
               </svg>
               Güncelle
             </button>
-            {status && (
+            {formik.values.status && (
               <button
                 onClick={handleUserStatus}
                 className={`mt-4 flex w-full items-center justify-center rounded-md bg-red-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:opacity-25`}
@@ -506,7 +536,7 @@ export default function UserUpdate() {
                 Pasif Yap
               </button>
             )}
-            {!status && (
+            {!formik.values.status && (
               <button
                 onClick={handleUserStatus}
                 className="mt-4 flex w-full items-center justify-center rounded-md bg-green-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
@@ -528,7 +558,27 @@ export default function UserUpdate() {
                 Aktif Yap
               </button>
             )}
-            <Link className="w-full" to="/user/list">
+            <button
+              className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+              onClick={handleGoBack}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="mr-1 h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+              Geri Dön
+            </button>
+            {/* <Link className="w-full" to="/user/list">
               <span className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -546,7 +596,7 @@ export default function UserUpdate() {
                 </svg>
                 Geri Dön
               </span>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </form>

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Accordion } from "@mantine/core";
 
-export default function SidebarItem({ item }) {
+export default function SidebarItem({ item, settingOpen, setSettingOpen }) {
   const router = useLocation();
   const { pathname } = router;
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
+  const toggle = () => {
+    setSettingOpen(!settingOpen);
+  };
   const nonActiveItemClasses =
     "text-md m-2 flex items-center justify-start rounded-md p-2 text-gray-500 hover:scale-110 hover:cursor-pointer hover:bg-orange-500 hover:bg-opacity-20 hover:shadow-md";
   const activeItemClasses =
@@ -34,7 +36,7 @@ export default function SidebarItem({ item }) {
             </svg>
             <span>{item.title}</span>
           </div>
-          {isOpen && (
+          {settingOpen && (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -50,7 +52,7 @@ export default function SidebarItem({ item }) {
               />
             </svg>
           )}
-          {!isOpen && (
+          {!settingOpen && (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -74,6 +76,9 @@ export default function SidebarItem({ item }) {
             className={
               pathname === item.path ? activeItemClasses : nonActiveItemClasses
             }
+            onClick={(e) => {
+              setSettingOpen(false);
+            }}
           >
             {item.icon === "dashboard" && (
               <svg
@@ -191,7 +196,7 @@ export default function SidebarItem({ item }) {
           </li>
         </Link>
       )}
-      {item.children && isOpen && (
+      {item.children && settingOpen && (
         <ul className="flex-row items-center text-sm text-gray-500">
           {item.children.map((child, index) => {
             return (
@@ -210,6 +215,7 @@ export default function SidebarItem({ item }) {
           })}
         </ul>
       )}
+      {item.children && !settingOpen && <></>}
     </>
   );
 }

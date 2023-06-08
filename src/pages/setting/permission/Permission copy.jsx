@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { usePermission } from "../../../hooks/setting/usePermission";
 import Loader from "../../../components/loader/Loader";
-import PermissionMenu from "../../../components/permission/PermissionMenu";
+import Accordion from "../../../components/accordion/Accordion";
 
 export default function Permission() {
   const { getPermissions, isLoading } = usePermission();
@@ -22,13 +22,11 @@ export default function Permission() {
       <div className="mb-2 justify-between">
         <div className="mt-2 items-center justify-center">
           <div className="font-roboto font-semibold text-gray-600">
-            Menü Yetkileri:
+            Menü Yetkileri:{" "}
           </div>
           {list.map((item, index) => {
             return (
-              <div key={index} className="mt-5 max-w-[600px]">
-                <PermissionMenu data={item} />
-              </div>
+              <Accordion key={index} data={item} setRefresh={setRefresh} />
             );
           })}
         </div>

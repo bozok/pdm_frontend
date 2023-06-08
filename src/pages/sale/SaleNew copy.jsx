@@ -8,48 +8,9 @@ import { useCustomer } from "../../hooks/customer/useCustomer";
 import { useSaleType } from "../../hooks/saleType/useSaleType";
 import { useCurrencyType } from "../../hooks/setting/useCurrencyType";
 import { useSale } from "../../hooks/sale/useSale";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { Link, useParams } from "react-router-dom";
 
 export default function SaleNew() {
-  // formik logics
-  const formik = useFormik({
-    // Initialize
-    initialValues: {
-      customer: {},
-      note: "",
-      user: "Seçiniz",
-      region: "Seçiniz",
-      office: "Seçiniz",
-    },
-    // Validation
-    validationSchema: Yup.object({
-      customer: Yup.object(),
-      note: Yup.string(),
-      user: Yup.string().notOneOf(["Seçiniz"], "Atanacak çalışan seçiniz"),
-      region: Yup.string()
-        .required("Bölge bilgisi zorunludur")
-        .notOneOf(["Seçiniz"], "Bölge bilgisi seçiniz"),
-      office: Yup.string()
-        .required("Ofis bilgisi zorunludur")
-        .notOneOf(["Seçiniz"], "Ofis bilgisi seçiniz"),
-      financialAdvisor: Yup.string(),
-      supplierMachinist: Yup.string(),
-    }),
-
-    // From submit
-    onSubmit: async (values) => {
-      //console.log(values);
-      //console.log(formik.errors);
-      const status = await handleFormSubmit(values);
-      if (status === 201) {
-        navigate(`/sale/list`);
-      }
-    },
-  });
-
-  const navigate = useNavigate();
   const param = useParams();
   const { newSale, isLoading } = useSale();
   const { getCustomer } = useCustomer();
@@ -59,21 +20,36 @@ export default function SaleNew() {
   const { getOfficesByRegion } = useOffice();
   const { getUserListByOffice } = useUser();
   const [regions, setRegions] = useState([]);
+  const [region, setRegion] = useState();
   const [offices, setOffices] = useState([]);
+  const [office, setOffice] = useState("");
   const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
+  const [customer, setCustomer] = useState({});
   const [saleTypes, setSaleTypes] = useState([]);
   const [currencyTypes, setCurrencyTypes] = useState([]);
   const [currencyType, setCurrencyType] = useState("");
   const [total, setTotal] = useState(0);
+  const [note, setNote] = useState("");
+
+  function validateIsNumber(value) {
+    var regex = /^[0-9]+$/;
+    if (value.match(regex)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   useEffect(() => {
     async function regionListGet() {
       const regionList = await getRegions();
       setRegions(regionList);
+      setRegion(regionList[0].name);
     }
     async function customerInfoGet() {
       const customerInfo = await getCustomer(param.id);
-      formik.setFieldValue("customer", customerInfo);
+      setCustomer(customerInfo);
     }
     async function saleTypesGet() {
       const saleTypeList = await getSaleTypes();
@@ -96,24 +72,38 @@ export default function SaleNew() {
   }, []);
 
   useEffect(() => {
-    if (formik.values.region) {
+    if (region) {
       async function officeListGet() {
-        const officeList = await getOfficesByRegion(formik.values.region);
-        setOffices(officeList);
+        const officeList = await getOfficesByRegion(region);
+        if (officeList.length > 0) {
+          setOffices(officeList);
+          setOffice(officeList[0].name);
+        } else {
+          setOffices([]);
+          setOffice("");
+          setUsers([]);
+          setUser({});
+        }
       }
       officeListGet();
     }
-  }, [formik.values.region]);
+  }, [region]);
 
   useEffect(() => {
-    if (formik.values.office) {
+    if (office) {
       async function userListGet() {
-        const userList = await getUserListByOffice(formik.values.office);
-        setUsers(userList);
+        const userList = await getUserListByOffice(office);
+        if (userList) {
+          setUsers(userList);
+          setUser(userList[0]);
+        } else {
+          setUsers([]);
+          setUser({});
+        }
       }
       userListGet();
     }
-  }, [formik.values.office]);
+  }, [office]);
 
   useEffect(() => {
     let sum = 0;
@@ -129,7 +119,8 @@ export default function SaleNew() {
     //console.log(sum);
   }, [saleTypes]);
 
-  const handleFormSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     let checkSaleTypeSelect = saleTypes.filter((sale) => sale.isChecked).length;
     if (checkSaleTypeSelect === 0) {
       return toast.warning("Satış için bir proje seçmediniz.");
@@ -146,17 +137,27 @@ export default function SaleNew() {
           await newSale(
             formData[i]._id,
             formData[i].name,
-            formik.values.customer,
+            customer,
             formData[i].value,
             currencyType,
-            formik.values.note,
-            formik.values.user
+            note,
+            user
           );
         }
       } else {
         return toast.warning("Eksik bilgi alanlarını doldurun.");
       }
     }
+  };
+  const handleUserChange = (e) => {
+    setUser(users[e.target.value]);
+  };
+
+  const onlyNumberKey = (e) => {
+    if (validateIsNumber(e.target.value)) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -167,7 +168,7 @@ export default function SaleNew() {
       </div>
       <form
         className="grid grid-cols-1 gap-6 md:grid-cols-6"
-        onSubmit={formik.handleSubmit}
+        onSubmit={handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
           <div className="rounded-md border border-orange-200 pb-4">
@@ -177,35 +178,28 @@ export default function SaleNew() {
             <div className="ml-2">
               <span className="text-sm font-semibold">Müşteri Adı: </span>
               <span className="text-sm">
-                {formik.values.customer.firstName}{" "}
-                {formik.values.customer.lastName}
+                {customer.firstName} {customer.lastName}
               </span>
             </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">Firma Adı: </span>
-              <span className="text-sm">
-                {formik.values.customer.companyName}
-              </span>
+              <span className="text-sm">{customer.companyName}</span>
             </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">TC Kimilk No: </span>
-              <span className="text-sm">
-                {formik.values.customer.identityNo}
-              </span>
+              <span className="text-sm">{customer.identityNo}</span>
             </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">E-posta: </span>
-              <span className="text-sm">{formik.values.customer.email}</span>
+              <span className="text-sm">{customer.email}</span>
             </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">GSM No: </span>
-              <span className="text-sm">
-                {formik.values.customer.mobileNumber}
-              </span>
+              <span className="text-sm">{customer.mobileNumber}</span>
             </div>
             <div className="ml-2">
               <span className="text-sm font-semibold">Müşteri Notu: </span>
-              <span className="text-sm">{formik.values.customer.comment}</span>
+              <span className="text-sm">{customer.comment}</span>
             </div>
           </div>
         </div>
@@ -287,11 +281,9 @@ export default function SaleNew() {
             <div className="m-2">
               <textarea
                 type="text"
-                name="note"
-                value={formik.values.note}
+                value={note}
                 minLength={2}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                onChange={(e) => setNote(e.target.value)}
                 className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
               />
             </div>
@@ -303,26 +295,16 @@ export default function SaleNew() {
               Atanacak çalışan
             </div>
             <div className="m-2">
-              <label
-                className={`text-sm font-semibold leading-6 text-gray-900 ${
-                  formik.touched.region && formik.errors.region
-                    ? "text-red-400"
-                    : ""
-                }`}
-              >
-                {formik.touched.region && formik.errors.region
-                  ? formik.errors.region
-                  : "Bölge"}
+              <label className="text-sm font-semibold leading-6 text-gray-900">
+                Bölge
               </label>
               <div className="mt-1">
                 <select
-                  name="region"
-                  value={formik.values.region}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  required
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
-                  <option value={"Seçiniz"}>Seçiniz</option>
                   {regions.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -334,26 +316,16 @@ export default function SaleNew() {
               </div>
             </div>
             <div className="m-2">
-              <label
-                className={`text-sm font-semibold leading-6 text-gray-900 ${
-                  formik.touched.office && formik.errors.office
-                    ? "text-red-400"
-                    : ""
-                }`}
-              >
-                {formik.touched.office && formik.errors.office
-                  ? formik.errors.office
-                  : "Ofis"}
+              <label className="text-sm font-semibold leading-6 text-gray-900">
+                Ofis
               </label>
               <div className="mt-1">
                 <select
-                  name="office"
-                  value={formik.values.office}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  required
+                  value={office}
+                  onChange={(e) => setOffice(e.target.value)}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
-                  <option value={"Seçiniz"}>Seçiniz</option>
                   {offices?.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -365,29 +337,21 @@ export default function SaleNew() {
               </div>
             </div>
             <div className="m-2">
-              <label
-                className={`text-sm font-semibold leading-6 text-gray-900 ${
-                  formik.touched.user && formik.errors.user
-                    ? "text-red-400"
-                    : ""
-                }`}
-              >
-                {formik.touched.user && formik.errors.user
-                  ? formik.errors.user
-                  : "Çalışanlar"}
+              <label className="text-sm font-semibold leading-6 text-gray-900">
+                Çalışanlar
               </label>
               <div className="mt-1">
                 <select
-                  name="user"
-                  value={formik.values.user}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  required
+                  onChange={(e) => {
+                    handleUserChange(e);
+                  }}
+                  // onChange={(e) => setUser(e.target.value)}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
-                  <option value={"Seçiniz"}>Seçiniz</option>
                   {users?.map((item, index) => {
                     return (
-                      <option key={index} value={item._id}>
+                      <option key={index} value={index}>
                         {item.firstName} {item.lastName}
                       </option>
                     );

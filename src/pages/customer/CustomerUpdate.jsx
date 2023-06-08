@@ -1,28 +1,80 @@
 import { useEffect, useState } from "react";
 import Loader from "../../components/loader/Loader";
-import { toast } from "react-toastify";
 import { useUser } from "../../hooks/user/useUser";
 import { useCustomer } from "../../hooks/customer/useCustomer";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export default function CustomerUpdate() {
+  // formik logics
+  const formik = useFormik({
+    // Initialize
+    initialValues: {
+      id: "",
+      identityNo: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      mobileNumber: "",
+      taxIdNo: "",
+      companyName: "",
+      financialAdvisor: "Seçiniz",
+      supplierMachinist: "Seçiniz",
+      comment: "",
+    },
+    // Validation
+    validationSchema: Yup.object({
+      identityNo: Yup.string()
+        .required("TC kimlik bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
+      firstName: Yup.string()
+        .required("İsim bilgisi zorunludur")
+        .matches(/^[aA-zZ\s]+$/, "İsim bilgisi harflerden oluşmalıdır")
+        .min(3, "İsim bilgisi en az 3 karakter olmalıdır"),
+      lastName: Yup.string()
+        .required("Soyisim bilgisi zorunludur")
+        .matches(/^[aA-zZ\s]+$/, "Soyisim bilgisi harflerden oluşmalıdır")
+        .min(2, "Soyisim bilgisi en az 2 karakter olmalıdır"),
+      email: Yup.string()
+        .email("Geçerli bir e-posta adresi giriniz")
+        .required("E-posta bilgisi zorunludur"),
+      mobileNumber: Yup.string()
+        .required("Cep telefonu bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(10, "Cep telefonu bilgisi 10 hane olmalıdır"),
+      taxIdNo: Yup.string()
+        .required("Vergi kimlik bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(10, "Vergi kimlik bilgisi 10 hane olmalıdır"),
+      companyName: Yup.string()
+        .required("Firma Adı bilgisi zorunludur")
+        .matches(/^[aA-zZ\s]+$/, "Firma Adı bilgisi harflerden oluşmalıdır")
+        .min(2, "Firma Adı bilgisi en az 2 karakter olmalıdır"),
+      financialAdvisor: Yup.string(),
+      supplierMachinist: Yup.string(),
+      comment: Yup.string(),
+    }),
+
+    // From submit
+    onSubmit: async (values) => {
+      // console.log(values);
+      // console.log(formik.errors);
+      const status = await handleFormSubmit(values);
+      if (status === 200) {
+        navigate(`/customer/list`);
+      }
+    },
+  });
+
+  const navigate = useNavigate();
   const param = useParams();
   const { getUserListByRole } = useUser();
   const { getCustomer, updateCustomer, isLoading } = useCustomer();
-  const [id, setId] = useState("");
-  const [identityNo, setIdentityNo] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [taxIdNo, setTaxIdNo] = useState([]);
-  const [companyName, setCompanyName] = useState("");
   const [financialAdvisors, setFinancialAdvisors] = useState([]);
-  const [financialAdvisor, setFinancialAdvisor] = useState("");
   const [supplierMachinists, setSupplierMachinists] = useState([]);
-  const [supplierMachinist, setSupplierMachinist] = useState("");
-  const [comment, setComment] = useState("");
 
   useEffect(() => {
     async function machinistListGet() {
@@ -37,47 +89,36 @@ export default function CustomerUpdate() {
     financialAdvisorsListGet();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (
-      !identityNo ||
-      !firstName ||
-      !lastName ||
-      !mobileNumber ||
-      !email ||
-      !taxIdNo ||
-      !companyName
-    ) {
-      return toast.error("Tüm alanları doldurunuz");
-    }
-    await updateCustomer(
-      id,
-      identityNo,
-      firstName,
-      lastName,
-      mobileNumber,
-      email,
-      taxIdNo,
-      companyName,
-      financialAdvisor,
-      supplierMachinist,
-      comment
+  const handleFormSubmit = async (values) => {
+    const status = await updateCustomer(
+      formik.values.id,
+      formik.values.identityNo,
+      formik.values.firstName,
+      formik.values.lastName,
+      formik.values.mobileNumber,
+      formik.values.email,
+      formik.values.taxIdNo,
+      formik.values.companyName,
+      formik.values.financialAdvisor,
+      formik.values.supplierMachinist,
+      formik.values.comment
     );
+    return status;
   };
 
   async function getCustomerInfo() {
     const customerInfo = await getCustomer(param.id);
-    setId(customerInfo._id);
-    setIdentityNo(customerInfo.identityNo);
-    setFirstName(customerInfo.firstName);
-    setLastName(customerInfo.lastName);
-    setMobileNumber(customerInfo.mobileNumber);
-    setEmail(customerInfo.email);
-    setTaxIdNo(customerInfo.taxIdNo);
-    setCompanyName(customerInfo.companyName);
-    setFinancialAdvisor(customerInfo.financialAdvisor);
-    setSupplierMachinist(customerInfo.supplierMachinist);
-    setComment(customerInfo.comment);
+    formik.setFieldValue("id", customerInfo._id);
+    formik.setFieldValue("identityNo", customerInfo.identityNo);
+    formik.setFieldValue("firstName", customerInfo.firstName);
+    formik.setFieldValue("lastName", customerInfo.lastName);
+    formik.setFieldValue("mobileNumber", customerInfo.mobileNumber);
+    formik.setFieldValue("email", customerInfo.email);
+    formik.setFieldValue("taxIdNo", customerInfo.taxIdNo);
+    formik.setFieldValue("companyName", customerInfo.companyName);
+    formik.setFieldValue("financialAdvisor", customerInfo.financialAdvisor);
+    formik.setFieldValue("supplierMachinist", customerInfo.supplierMachinist);
+    formik.setFieldValue("comment", customerInfo.comment);
   }
 
   useEffect(() => {
@@ -85,6 +126,13 @@ export default function CustomerUpdate() {
       getCustomerInfo();
     }
   }, [param.id]);
+
+  const handleGoBack = (e) => {
+    e.preventDefault();
+    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+      navigate(`/customer/list`);
+    }
+  };
 
   return (
     <>
@@ -96,7 +144,7 @@ export default function CustomerUpdate() {
       </div>
       <form
         className="grid grid-cols-1 gap-6 md:grid-cols-6"
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
           <div className="rounded-md border border-orange-200">
@@ -104,63 +152,98 @@ export default function CustomerUpdate() {
               Firma Sahibi Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                TC Kimlik Numarası
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.identityNo && formik.errors.identityNo
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.identityNo && formik.errors.identityNo
+                  ? formik.errors.identityNo
+                  : "TC Kimlik Numarası"}
               </label>
               <div className="mt-1">
                 <input
-                  value={identityNo}
                   type="text"
-                  required
-                  minLength={11}
+                  name="identityNo"
                   maxLength={11}
-                  pattern="[0-9]+"
-                  onChange={(e) => setIdentityNo(e.target.value)}
+                  value={formik.values.identityNo}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                İsim
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.firstName && formik.errors.firstName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.firstName && formik.errors.firstName
+                  ? formik.errors.firstName
+                  : "İsim"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={firstName}
-                  required
-                  minLength={3}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  name="firstName"
+                  maxLength={20}
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Soyisim
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.lastName && formik.errors.lastName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.lastName && formik.errors.lastName
+                  ? formik.errors.lastName
+                  : "Soyisim"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={lastName}
-                  required
-                  minLength={2}
-                  onChange={(e) => setLastName(e.target.value)}
+                  name="lastName"
+                  maxLength={20}
+                  value={formik.values.lastName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Not
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.lastName && formik.errors.lastName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.comment && formik.errors.comment
+                  ? formik.errors.comment
+                  : "Not"}
               </label>
               <div className="mt-1">
                 <textarea
                   type="text"
-                  value={comment}
-                  required
+                  name="comment"
+                  value={formik.values.comment}
                   minLength={2}
-                  onChange={(e) => setComment(e.target.value)}
+                  maxLength={150}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
@@ -173,33 +256,48 @@ export default function CustomerUpdate() {
               Firma Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Vergi Kimlik Numarası
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.taxIdNo && formik.errors.taxIdNo
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.taxIdNo && formik.errors.taxIdNo
+                  ? formik.errors.taxIdNo
+                  : "Vergi Kimlik Numarası"}
               </label>
               <div className="mt-1">
                 <input
-                  value={taxIdNo}
                   type="text"
-                  required
-                  minLength={10}
+                  name="taxIdNo"
                   maxLength={10}
-                  pattern="[0-9]+"
-                  onChange={(e) => setTaxIdNo(e.target.value)}
+                  value={formik.values.taxIdNo}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Firma Adı
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.companyName && formik.errors.companyName
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.companyName && formik.errors.companyName
+                  ? formik.errors.companyName
+                  : "Firma Adı"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={companyName}
-                  required
-                  minLength={2}
-                  onChange={(e) => setCompanyName(e.target.value)}
+                  name="companyName"
+                  value={formik.values.companyName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
@@ -210,11 +308,13 @@ export default function CustomerUpdate() {
               </label>
               <div className="mt-1">
                 <select
-                  value={financialAdvisor}
-                  onChange={(e) => setFinancialAdvisor(e.target.value)}
+                  name="financialAdvisor"
+                  value={formik.values.financialAdvisor}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
-                  <option defaultValue="none"></option>
+                  <option value={""}>Seçiniz</option>
                   {financialAdvisors.length > 0 &&
                     financialAdvisors.map((item, index) => {
                       return (
@@ -235,11 +335,13 @@ export default function CustomerUpdate() {
               </label>
               <div className="mt-1">
                 <select
-                  value={supplierMachinist}
-                  onChange={(e) => setSupplierMachinist(e.target.value)}
+                  name="supplierMachinist"
+                  value={formik.values.supplierMachinist}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
-                  <option defaultValue="none"></option>
+                  <option value={""}>Seçiniz</option>
                   {supplierMachinists.length > 0 &&
                     supplierMachinists.map((item, index) => {
                       return (
@@ -262,33 +364,49 @@ export default function CustomerUpdate() {
               İletişim Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                E-posta
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.email && formik.errors.email
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.email && formik.errors.email
+                  ? formik.errors.email
+                  : "E-posta"}
               </label>
               <div className="mt-1">
                 <input
                   type="email"
-                  value={email}
-                  required
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Cep Telefonu
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.mobileNumber && formik.errors.mobileNumber
+                  ? formik.errors.mobileNumber
+                  : "Cep Telefonu"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={mobileNumber}
-                  required
-                  placeholder="5XX XXX XX XX"
-                  minLength={10}
+                  placeholder="5XX-XXX-XX-XX"
+                  name="mobileNumber"
                   maxLength={10}
-                  pattern="[0-9]+"
-                  onChange={(e) => setMobileNumber(e.target.value)}
+                  value={formik.values.mobileNumber}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
@@ -315,7 +433,27 @@ export default function CustomerUpdate() {
               </svg>
               Kaydet
             </button>
-            <Link className="w-full" to="/customer/list">
+            <button
+              className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+              onClick={handleGoBack}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="mr-1 h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+              Geri Dön
+            </button>
+            {/* <Link className="w-full" to="/customer/list">
               <span className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +471,7 @@ export default function CustomerUpdate() {
                 </svg>
                 Geri Dön
               </span>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </form>

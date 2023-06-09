@@ -18,12 +18,9 @@ export const useOffice = () => {
       regionName: regionName,
       mobileNumber: mobileNumber,
     };
-    saveOffice(formData, "new", 0);
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
-    }
+    let responseStatus = 0;
+    responseStatus = saveOffice(formData, "new", 0);
+    return responseStatus;
   };
 
   const updateOffice = async (id, name, regionName, mobileNumber) => {
@@ -34,12 +31,9 @@ export const useOffice = () => {
     };
     setIsLoading(true);
     setError(null);
-    saveOffice(formData, "update", id);
-    if (error !== null) {
-      return false;
-    } else {
-      return true;
-    }
+    let responseStatus = 0;
+    responseStatus = saveOffice(formData, "update", id);
+    return responseStatus;
   };
 
   async function saveOffice(data, type, id) {
@@ -57,6 +51,7 @@ export const useOffice = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -64,6 +59,7 @@ export const useOffice = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     } else {
       // update office
@@ -79,6 +75,7 @@ export const useOffice = () => {
           toast.success(response.data.message);
           setIsLoading(false);
         }
+        return response.status;
       } catch (error) {
         if (error.response.status === 401) {
           await logout();
@@ -86,6 +83,7 @@ export const useOffice = () => {
         toast.error(error.response.data.message);
         setError(error.response.data.message);
         setIsLoading(false);
+        return 400;
       }
     }
   }

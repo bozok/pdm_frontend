@@ -58,12 +58,12 @@ export default function CustomerNew() {
 
     // From submit
     onSubmit: async (values) => {
-      console.log(values);
+      //console.log(values);
       //console.log(formik.errors);
-      // const status = await handleFormSubmit(values);
-      // if (status === 201) {
-      //   navigate(`/customer/list`);
-      // }
+      const status = await handleFormSubmit(values);
+      if (status === 201) {
+        navigate(`/customer/list`);
+      }
     },
   });
   const navigate = useNavigate();

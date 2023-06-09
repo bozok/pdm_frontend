@@ -45,7 +45,7 @@ export default function CustomerList() {
   return (
     <>
       {isLoading && <Loader />}
-      <div className="mb-2 flex items-center  justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center">
           <span className="font-roboto font-semibold text-gray-600">
             Müşteriler
@@ -79,7 +79,7 @@ export default function CustomerList() {
             ></input>
           </div>
         </div>
-        <div className=" flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => showNew()}
             className="ml-4 flex w-full items-center justify-center rounded-md bg-sky-400 px-2.5 py-1.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"

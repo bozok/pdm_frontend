@@ -1,50 +1,83 @@
-import { toast } from "react-toastify";
 import Loader from "../../../components/loader/Loader";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useRegion } from "../../../hooks/region/useRegion";
 import { useOffice } from "../../../hooks/office/useOffice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 export default function OfficeUpdate() {
+  // formik logics
+  const formik = useFormik({
+    // Initialize
+    initialValues: {
+      id: "",
+      name: "",
+      mobileNumber: "",
+      region: "Seçiniz",
+      status: false,
+    },
+    // Validation
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .required("Ofis Adı bilgisi zorunludur")
+        .min(3, "Ofis Adı bilgisi en az 3 karakter olmalıdır"),
+      mobileNumber: Yup.string()
+        .required("Cep telefonu bilgisi zorunludur")
+        .matches(/^[0-9]+$/, "Sadece sayılardan oluşmalıdır")
+        .length(10, "Cep Telefonu bilgisi 10 hane olmalıdır"),
+      region: Yup.string()
+        .required("Bölge bilgisi zorunludur")
+        .notOneOf(["Seçiniz"], "Bölge bilgisi seçiniz"),
+    }),
+
+    // From submit
+    onSubmit: async (values) => {
+      //console.log(values);
+      //console.log(formik.errors);
+      const status = await handleFormSubmit(values);
+      if (status === 200) {
+        navigate(`/setting/office/list`);
+      }
+    },
+  });
+
+  const navigate = useNavigate();
   const { getRegions } = useRegion();
   const { getOffice, updateOffice, changeOfficeStatus, isLoading } =
     useOffice();
   const param = useParams();
-  const [id, setId] = useState();
-  const [name, setName] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [status, setStatus] = useState(false);
   const [regions, setRegions] = useState([]);
-  const [region, setRegion] = useState("");
 
   const handleOfficeStatus = async (e) => {
     e.preventDefault();
     const newOfficeInfo = await changeOfficeStatus(param.id);
     if (newOfficeInfo) {
-      setId(newOfficeInfo._id);
-      setName(newOfficeInfo.name);
-      setRegion(newOfficeInfo.regionName);
-      setMobileNumber(newOfficeInfo.mobileNumber);
-      setStatus(newOfficeInfo.status);
+      formik.setFieldValue("id", newOfficeInfo._id);
+      formik.setFieldValue("name", newOfficeInfo.name);
+      formik.setFieldValue("region", newOfficeInfo.regionName);
+      formik.setFieldValue("mobileNumber", newOfficeInfo.mobileNumber);
+      formik.setFieldValue("status", newOfficeInfo.status);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name || !mobileNumber || !region) {
-      return toast.error("Tüm alanları doldurunuz");
-    }
-
-    await updateOffice(id, name, region, mobileNumber);
+  const handleFormSubmit = async () => {
+    const status = await updateOffice(
+      formik.values.id,
+      formik.values.name,
+      formik.values.region,
+      formik.values.mobileNumber
+    );
+    return status;
   };
   async function getOfficeInfo() {
     const officeInfo = await getOffice(param.id);
-    setId(officeInfo._id);
-    setName(officeInfo.name);
-    setRegion(officeInfo.regionName);
-    setMobileNumber(officeInfo.mobileNumber);
-    setStatus(officeInfo.status);
+    formik.setFieldValue("id", officeInfo._id);
+    formik.setFieldValue("name", officeInfo.name);
+    formik.setFieldValue("region", officeInfo.regionName);
+    formik.setFieldValue("mobileNumber", officeInfo.mobileNumber);
+    formik.setFieldValue("status", officeInfo.status);
   }
   async function regionListGet() {
     const regionList = await getRegions();
@@ -68,7 +101,7 @@ export default function OfficeUpdate() {
       </div>
       <form
         className="grid grid-cols-1 gap-6 md:grid-cols-6"
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
       >
         <div className="col-span-1 md:col-span-2">
           <div className="rounded-md border border-orange-200">
@@ -76,45 +109,75 @@ export default function OfficeUpdate() {
               Ofis Bilgileri
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Ofis Adı
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.name && formik.errors.name
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.name && formik.errors.name
+                  ? formik.errors.name
+                  : "Ofis Adı"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={name}
-                  required
-                  minLength={3}
-                  onChange={(e) => setName(e.target.value)}
+                  name="name"
+                  maxLength={20}
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Cep Telefonu
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.mobileNumber && formik.errors.mobileNumber
+                  ? formik.errors.mobileNumber
+                  : "Cep Telefonu"}
               </label>
               <div className="mt-1">
                 <input
                   type="text"
-                  value={mobileNumber}
-                  required
-                  onChange={(e) => setMobileNumber(e.target.value)}
+                  placeholder="5XX-XXX-XX-XX"
+                  name="mobileNumber"
+                  maxLength={10}
+                  value={formik.values.mobileNumber}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 />
               </div>
             </div>
             <div className="m-2">
-              <label className="text-sm font-semibold leading-6 text-gray-900">
-                Bölge
+              <label
+                className={`text-sm font-semibold leading-6 text-gray-900 ${
+                  formik.touched.region && formik.errors.region
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.region && formik.errors.region
+                  ? formik.errors.region
+                  : "Bölge"}
               </label>
               <div className="mt-1">
                 <select
-                  required
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
+                  name="region"
+                  value={formik.values.region}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   className="w-full rounded-md border-0 px-3.5 py-2 font-roboto shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-1 focus:ring-inset focus:ring-gray-600"
                 >
+                  <option value={"Seçiniz"}>Seçiniz</option>
                   {regions.map((item, index) => {
                     return (
                       <option key={index} value={item.name}>
@@ -147,7 +210,7 @@ export default function OfficeUpdate() {
               </svg>
               Güncelle
             </button>
-            {status && (
+            {formik.values.status && (
               <button
                 onClick={handleOfficeStatus}
                 className="mt-4 flex w-full items-center justify-center rounded-md bg-red-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
@@ -169,7 +232,7 @@ export default function OfficeUpdate() {
                 Pasif Yap
               </button>
             )}
-            {!status && (
+            {!formik.values.status && (
               <button
                 onClick={handleOfficeStatus}
                 className="mt-4 flex w-full items-center justify-center rounded-md bg-green-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"

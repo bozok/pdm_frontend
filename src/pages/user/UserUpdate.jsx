@@ -16,13 +16,21 @@ export default function UserUpdate() {
     initialValues: {
       id: "",
       identityNo: "",
+      oldIdentityNo: "",
       firstName: "",
+      oldFirstName: "",
       lastName: "",
+      oldLastName: "",
       email: "",
+      oldEmail: "",
       mobileNumber: "",
+      oldMobileNumber: "",
       region: "Seçiniz",
-      office: "",
+      oldRegion: "Seçiniz",
+      office: "Seçiniz",
+      oldOffice: "Seçiniz",
       role: "Seçiniz",
+      oldRole: "Seçiniz",
       photo: import.meta.env.VITE_DEFAULT_PROFILE_IMG,
       oldPhoto: import.meta.env.VITE_DEFAULT_PROFILE_IMG,
       status: false,
@@ -35,11 +43,17 @@ export default function UserUpdate() {
         .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
       firstName: Yup.string()
         .required("İsim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "İsim alanı harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "İsim alanı harflerden oluşmalıdır"
+        )
         .min(3, "İsim bilgisi en az 3 karakter olmalı"),
       lastName: Yup.string()
         .required("Soyisim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Soyisim alanı harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Soyisim alanı harflerden oluşmalıdır"
+        )
         .min(2, "Soyisim bilgisi en az 2 karakter olmalı"),
       region: Yup.string()
         .required("Bölge bilgisi zorunludur")
@@ -158,13 +172,21 @@ export default function UserUpdate() {
     formik.setFieldValue("oldPhoto", employeeInfo.photo);
     formik.setFieldValue("id", employeeInfo._id);
     formik.setFieldValue("identityNo", employeeInfo.identityNo);
+    formik.setFieldValue("oldIdentityNo", employeeInfo.identityNo);
     formik.setFieldValue("firstName", employeeInfo.firstName);
+    formik.setFieldValue("oldFirstName", employeeInfo.firstName);
     formik.setFieldValue("lastName", employeeInfo.lastName);
+    formik.setFieldValue("oldLastName", employeeInfo.lastName);
     formik.setFieldValue("region", employeeInfo.region);
+    formik.setFieldValue("oldRegion", employeeInfo.region);
     formik.setFieldValue("office", employeeInfo.office);
+    formik.setFieldValue("oldOffice", employeeInfo.office);
     formik.setFieldValue("mobileNumber", employeeInfo.mobileNumber);
+    formik.setFieldValue("oldMobileNumber", employeeInfo.mobileNumber);
     formik.setFieldValue("email", employeeInfo.email);
+    formik.setFieldValue("oldEmail", employeeInfo.email);
     formik.setFieldValue("role", employeeInfo.role);
+    formik.setFieldValue("oldRole", employeeInfo.role);
     formik.setFieldValue("status", employeeInfo.status);
   }
   async function regionListGet() {
@@ -193,9 +215,50 @@ export default function UserUpdate() {
     officeListGet();
   }, [formik.values.region]);
 
+  const checkFromChanges = () => {
+    let changed = false;
+    if (formik.values.oldIdentityNo !== formik.values.identityNo) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldFirstName !== formik.values.firstName) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldLastName !== formik.values.lastName) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldRegion !== formik.values.region) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldOffice !== formik.values.office) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldEmail !== formik.values.email) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldMobileNumber !== formik.values.mobileNumber) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldRole !== formik.values.role) {
+      changed = true;
+      return changed;
+    }
+    return changed;
+  };
+
   const handleGoBack = (e) => {
     e.preventDefault();
-    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+    if (checkFromChanges()) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/user/list`);
+      }
+    } else {
       navigate(`/user/list`);
     }
   };

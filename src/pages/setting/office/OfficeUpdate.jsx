@@ -14,8 +14,11 @@ export default function OfficeUpdate() {
     initialValues: {
       id: "",
       name: "",
+      oldName: "",
       mobileNumber: "",
+      oldMobileNumber: "",
       region: "Seçiniz",
+      oldRegion: "Seçiniz",
       status: false,
     },
     // Validation
@@ -62,6 +65,23 @@ export default function OfficeUpdate() {
     }
   };
 
+  const checkFromChanges = () => {
+    let changed = false;
+    if (formik.values.oldName !== formik.values.name) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldRegion !== formik.values.region) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldMobileNumber !== formik.values.mobileNumber) {
+      changed = true;
+      return changed;
+    }
+    return changed;
+  };
+
   const handleFormSubmit = async () => {
     const status = await updateOffice(
       formik.values.id,
@@ -75,8 +95,11 @@ export default function OfficeUpdate() {
     const officeInfo = await getOffice(param.id);
     formik.setFieldValue("id", officeInfo._id);
     formik.setFieldValue("name", officeInfo.name);
+    formik.setFieldValue("oldName", officeInfo.name);
     formik.setFieldValue("region", officeInfo.regionName);
+    formik.setFieldValue("oldRegion", officeInfo.regionName);
     formik.setFieldValue("mobileNumber", officeInfo.mobileNumber);
+    formik.setFieldValue("oldMobileNumber", officeInfo.mobileNumber);
     formik.setFieldValue("status", officeInfo.status);
   }
   async function regionListGet() {
@@ -90,6 +113,17 @@ export default function OfficeUpdate() {
       getOfficeInfo();
     }
   }, [param.id]);
+
+  const handleGoBack = (e) => {
+    e.preventDefault();
+    if (checkFromChanges()) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/setting/office/list`);
+      }
+    } else {
+      navigate(`/setting/office/list`);
+    }
+  };
 
   return (
     <>
@@ -254,7 +288,27 @@ export default function OfficeUpdate() {
                 Aktif Yap
               </button>
             )}
-            <Link className="w-full" to="/setting/office/list">
+            <button
+              className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+              onClick={handleGoBack}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="mr-1 h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+              Geri Dön
+            </button>
+            {/* <Link className="w-full" to="/setting/office/list">
               <span className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -272,7 +326,7 @@ export default function OfficeUpdate() {
                 </svg>
                 Geri Dön
               </span>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </form>

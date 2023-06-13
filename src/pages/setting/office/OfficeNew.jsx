@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Loader from "../../../components/loader/Loader";
 import { useRegion } from "../../../hooks/region/useRegion";
 import { useOffice } from "../../../hooks/office/useOffice";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -59,6 +59,17 @@ export default function OfficeNew() {
       formik.values.mobileNumber
     );
     return status;
+  };
+
+  const handleGoBack = (e) => {
+    e.preventDefault();
+    if (formik.dirty) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/setting/office/list`);
+      }
+    } else {
+      navigate(`/setting/office/list`);
+    }
   };
 
   return (
@@ -179,7 +190,27 @@ export default function OfficeNew() {
             </svg>
             Kaydet
           </button>
-          <Link className="w-full" to="/setting/office/list">
+          <button
+            className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+            onClick={handleGoBack}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="mr-1 h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+              />
+            </svg>
+            Geri Dön
+          </button>
+          {/* <Link className="w-full" to="/setting/office/list">
             <span className="mt-4 flex w-full items-center justify-center rounded-md bg-orange-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +228,7 @@ export default function OfficeNew() {
               </svg>
               Geri Dön
             </span>
-          </Link>
+          </Link> */}
         </div>
       </form>
     </>

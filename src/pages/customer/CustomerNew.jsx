@@ -30,11 +30,17 @@ export default function CustomerNew() {
         .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
       firstName: Yup.string()
         .required("İsim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "İsim bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "İsim bilgisi harflerden oluşmalıdır"
+        )
         .min(3, "İsim bilgisi en az 3 karakter olmalıdır"),
       lastName: Yup.string()
         .required("Soyisim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Soyisim bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Soyisim bilgisi harflerden oluşmalıdır"
+        )
         .min(2, "Soyisim bilgisi en az 2 karakter olmalıdır"),
       email: Yup.string()
         .email("Geçerli bir e-posta adresi giriniz")
@@ -49,7 +55,10 @@ export default function CustomerNew() {
         .length(10, "Vergi kimlik bilgisi 10 hane olmalıdır"),
       companyName: Yup.string()
         .required("Firma Adı bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Firma Adı bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Firma Adı bilgisi harflerden oluşmalıdır"
+        )
         .min(2, "Firma Adı bilgisi en az 2 karakter olmalıdır"),
       financialAdvisor: Yup.string(),
       supplierMachinist: Yup.string(),
@@ -103,7 +112,11 @@ export default function CustomerNew() {
 
   const handleGoBack = (e) => {
     e.preventDefault();
-    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+    if (formik.dirty) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/customer/list`);
+      }
+    } else {
       navigate(`/customer/list`);
     }
   };

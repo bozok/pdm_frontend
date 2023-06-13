@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Accordion } from "@mantine/core";
 
 export default function SidebarItem({ item, settingOpen, setSettingOpen }) {
   const router = useLocation();
@@ -8,6 +6,7 @@ export default function SidebarItem({ item, settingOpen, setSettingOpen }) {
   const toggle = () => {
     setSettingOpen(!settingOpen);
   };
+
   const nonActiveItemClasses =
     "text-md m-2 flex items-center justify-start rounded-md p-2 text-gray-500 hover:scale-110 hover:cursor-pointer hover:bg-orange-500 hover:bg-opacity-20 hover:shadow-md";
   const activeItemClasses =
@@ -74,7 +73,10 @@ export default function SidebarItem({ item, settingOpen, setSettingOpen }) {
         <Link to={item.path}>
           <li
             className={
-              pathname === item.path ? activeItemClasses : nonActiveItemClasses
+              //pathname === item.path ? activeItemClasses : nonActiveItemClasses
+              pathname.includes(item.path)
+                ? activeItemClasses
+                : nonActiveItemClasses
             }
             onClick={(e) => {
               setSettingOpen(false);

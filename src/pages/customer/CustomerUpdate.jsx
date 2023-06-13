@@ -14,15 +14,25 @@ export default function CustomerUpdate() {
     initialValues: {
       id: "",
       identityNo: "",
+      oldIdentityNo: "",
       firstName: "",
+      oldFirstName: "",
       lastName: "",
+      oldLastName: "",
       email: "",
+      oldEmail: "",
       mobileNumber: "",
+      oldMobileNumber: "",
       taxIdNo: "",
+      oldTaxIdNo: "",
       companyName: "",
+      oldCompanyName: "",
       financialAdvisor: "Seçiniz",
+      oldFinancialAdvisor: "Seçiniz",
       supplierMachinist: "Seçiniz",
+      oldSupplierMachinist: "Seçiniz",
       comment: "",
+      oldComment: "",
     },
     // Validation
     validationSchema: Yup.object({
@@ -32,11 +42,17 @@ export default function CustomerUpdate() {
         .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
       firstName: Yup.string()
         .required("İsim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "İsim bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "İsim bilgisi harflerden oluşmalıdır"
+        )
         .min(3, "İsim bilgisi en az 3 karakter olmalıdır"),
       lastName: Yup.string()
         .required("Soyisim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Soyisim bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Soyisim bilgisi harflerden oluşmalıdır"
+        )
         .min(2, "Soyisim bilgisi en az 2 karakter olmalıdır"),
       email: Yup.string()
         .email("Geçerli bir e-posta adresi giriniz")
@@ -51,7 +67,10 @@ export default function CustomerUpdate() {
         .length(10, "Vergi kimlik bilgisi 10 hane olmalıdır"),
       companyName: Yup.string()
         .required("Firma Adı bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Firma Adı bilgisi harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Firma Adı bilgisi harflerden oluşmalıdır"
+        )
         .min(2, "Firma Adı bilgisi en az 2 karakter olmalıdır"),
       financialAdvisor: Yup.string(),
       supplierMachinist: Yup.string(),
@@ -110,15 +129,28 @@ export default function CustomerUpdate() {
     const customerInfo = await getCustomer(param.id);
     formik.setFieldValue("id", customerInfo._id);
     formik.setFieldValue("identityNo", customerInfo.identityNo);
+    formik.setFieldValue("oldIdentityNo", customerInfo.identityNo);
     formik.setFieldValue("firstName", customerInfo.firstName);
+    formik.setFieldValue("oldFirstName", customerInfo.firstName);
     formik.setFieldValue("lastName", customerInfo.lastName);
+    formik.setFieldValue("oldLastName", customerInfo.lastName);
     formik.setFieldValue("mobileNumber", customerInfo.mobileNumber);
+    formik.setFieldValue("oldMobileNumber", customerInfo.mobileNumber);
     formik.setFieldValue("email", customerInfo.email);
+    formik.setFieldValue("oldEmail", customerInfo.email);
     formik.setFieldValue("taxIdNo", customerInfo.taxIdNo);
+    formik.setFieldValue("oldTaxIdNo", customerInfo.taxIdNo);
     formik.setFieldValue("companyName", customerInfo.companyName);
+    formik.setFieldValue("oldCompanyName", customerInfo.companyName);
     formik.setFieldValue("financialAdvisor", customerInfo.financialAdvisor);
+    formik.setFieldValue("oldFinancialAdvisor", customerInfo.financialAdvisor);
     formik.setFieldValue("supplierMachinist", customerInfo.supplierMachinist);
+    formik.setFieldValue(
+      "oldSupplierMachinist",
+      customerInfo.supplierMachinist
+    );
     formik.setFieldValue("comment", customerInfo.comment);
+    formik.setFieldValue("oldComment", customerInfo.comment);
   }
 
   useEffect(() => {
@@ -129,9 +161,60 @@ export default function CustomerUpdate() {
 
   const handleGoBack = (e) => {
     e.preventDefault();
-    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+    if (checkFromChanges()) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/customer/list`);
+      }
+    } else {
       navigate(`/customer/list`);
     }
+  };
+
+  const checkFromChanges = () => {
+    let changed = false;
+    if (formik.values.oldIdentityNo !== formik.values.identityNo) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldFirstName !== formik.values.firstName) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldLastName !== formik.values.lastName) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldComment !== formik.values.comment) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldTaxIdNo !== formik.values.taxIdNo) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldCompanyName !== formik.values.companyName) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldFinancialAdvisor !== formik.values.financialAdvisor) {
+      changed = true;
+      return changed;
+    }
+    if (
+      formik.values.oldSupplierMachinist !== formik.values.supplierMachinist
+    ) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldEmail !== formik.values.email) {
+      changed = true;
+      return changed;
+    }
+    if (formik.values.oldMobileNumber !== formik.values.mobileNumber) {
+      changed = true;
+      return changed;
+    }
+    return changed;
   };
 
   return (

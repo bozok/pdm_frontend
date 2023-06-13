@@ -31,11 +31,17 @@ export default function UserNew() {
         .length(11, "TC kimlik bilgisi 11 karakter olmalıdır"),
       firstName: Yup.string()
         .required("İsim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "İsim alanı harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "İsim alanı harflerden oluşmalıdır"
+        )
         .min(3, "İsim bilgisi en az 3 karakter olmalı"),
       lastName: Yup.string()
         .required("Soyisim bilgisi zorunludur")
-        .matches(/^[aA-zZ\s]+$/, "Soyisim alanı harflerden oluşmalıdır")
+        .matches(
+          /^[aA-zZ-ğüşöçıİĞÜŞÖÇ\s]+$/,
+          "Soyisim alanı harflerden oluşmalıdır"
+        )
         .min(2, "Soyisim bilgisi en az 2 karakter olmalı"),
       region: Yup.string()
         .required("Bölge bilgisi zorunludur")
@@ -144,7 +150,11 @@ export default function UserNew() {
 
   const handleGoBack = (e) => {
     e.preventDefault();
-    if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+    if (formik.dirty) {
+      if (confirm("Kaydedilmeyen bilgiler kaybolacaktır. Devam edilsin mi?")) {
+        navigate(`/user/list`);
+      }
+    } else {
       navigate(`/user/list`);
     }
   };
